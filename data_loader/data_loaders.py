@@ -26,7 +26,6 @@ class MnistDataLoader(BaseDataLoader):
 
 
 # the parameters from the json file will be fed into here.
-class StockDataset(Dataset):
     def __init__(self, csv_file, window=10):
         self.csv_file = csv_file
         self.df = pd.read_csv(self.csv_file)
