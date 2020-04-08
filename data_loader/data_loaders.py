@@ -52,7 +52,7 @@ class StockDataLoader(BaseDataLoader):
         #     transforms.Normalize((0.1307,), (0.3081,))
         # ])
         # self.data_dir = data_dir
-        # self.dataset = datasets.MNIST(self.data_dir, train=training, download=True, transform=trsfm)
+        # self.original_data = datasets.MNIST(self.data_dir, train=training, download=True, transform=trsfm)
         self.dataset = StockDataset("/home/guanyush/Pictures/CSC2516/CNNLSTM/data/STOCK/SPY.csv")
         super().__init__(self.dataset, batch_size, shuffle, validation_split, num_workers)
 
