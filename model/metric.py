@@ -18,3 +18,7 @@ def top_k_acc(output, target, k=3):
         for i in range(k):
             correct += torch.sum(pred[:, i] == target).item()
     return correct / len(target)
+
+def regression_binary_pred(output, target):
+    print("regression_binary_pred: {}, {}".format(output, target))
+    return 0
