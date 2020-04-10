@@ -24,35 +24,37 @@ class MnistModel(BaseModel):
 
 
 class CNNLSTMModel(BaseModel):
-    def __init__(self):
+    def __init__(self, input_dim, output_dim):
         super().__init__()
 
         #### Data Dependent ####
         # input
-        self.input_dim = 1
+        self.input_dim = input_dim
         # output
-        self.output_size = 1
+        self.output_dim = output_dim
         ########################
 
         #### Architecture Dependent ####
         # convolution
-        self.num_conv = 2
-        self.conv_channels = [17, 17]
-        self.kernel_sizes = [3, 3]
-        assert(self.num_conv == len(self.conv_channels)) # ensure right amount of conv channel size is supplied
+        self.conv_channels = [20, 20, 20]
+        self.dilation = [1, 2, 4]
+        self.kernel_sizes = [3, 3, 3]
+        self.num_conv = len(self.conv_channels)
+        assert(len(self.conv_channels) == len(self.dilation) == len(self.kernel_sizes)) # ensure right amount of conv channel size is supplied
 
         self.conv_channels.insert(0, self.input_dim)
         self.conv_channels = list(zip(self.conv_channels, self.conv_channels[1:])) # convert conv_channels into a list of tuples for easier use
 
         # rnn
         self.rnn1_input = self.conv_channels[-1][-1]
-        self.rnn1_hidden = 11
+        self.rnn1_hidden = 20
         self.rnn1_num_layers = 2
         ################################
 
-        self.convs = nn.ModuleList([nn.Conv1d(in_channels=in_c, out_channels=out_c, kernel_size=k_size) for (in_c, out_c), k_size in zip(self.conv_channels, self.kernel_sizes)])
+        self.convs = nn.ModuleList([nn.Conv1d(in_channels=in_c, out_channels=out_c, dilation=dilation, kernel_size=k_size)
+                                    for (in_c, out_c), dilation, k_size in zip(self.conv_channels, self.dilation, self.kernel_sizes)])
         self.rnn1 = nn.LSTM(input_size=self.rnn1_input, hidden_size=self.rnn1_hidden, num_layers=self.rnn1_num_layers)
-        self.fc = nn.Linear(self.rnn1_hidden, self.output_size)
+        self.fc = nn.Linear(self.rnn1_hidden, self.output_dim)
 
         # figure out how to use LSTM later
         # self.lstm1 = nn.LSTM(input_size=1, hidden_size=3, num_layers=2)
@@ -61,8 +63,8 @@ class CNNLSTMModel(BaseModel):
 
     def forward(self, x):
         # print("input x.shape: {}".format(x.shape))
-        if x.dim() == 2: # currently only works if x is single series input (can be batched)
-            x = x.view(x.shape[0], 1, x.shape[1]) # batch, channel, sequence_length
+        # if x.dim() == 2: # currently only works if x is single series input (can be batched)
+        #     x = x.view(x.shape[0], 1, x.shape[1]) # batch, channel, sequence_length
         # print("after view x.shape: {}".format(x.shape))
         for conv in self.convs:
             x = F.relu(conv(x))
@@ -72,7 +74,6 @@ class CNNLSTMModel(BaseModel):
         # print("after rnn x.shape: {}".format(x.shape))
         x = self.fc(x[-1, :, :]) # only use the output of the last time step to make our prediction
         # print("after fc x.shape: {}".format(x.shape))
-        # x, _ = self.lstm1(x, (self.h0, self.c0))
         return x
 
 if __name__ == "__main__":

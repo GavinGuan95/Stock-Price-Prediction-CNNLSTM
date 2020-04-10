@@ -50,7 +50,7 @@ class BaseDataLoader(DataLoader):
         # train_sampler = SubsetRandomSampler(train_idx)
         # valid_sampler = SubsetRandomSampler(valid_idx)
         train_sampler = SequentialSampler(train_idx)
-        valid_sampler = SequentialSampler(valid_idx)
+        valid_sampler = SubsetRandomSampler(valid_idx)
 
         # turn off shuffle option which is mutually exclusive with sampler
         self.shuffle = False

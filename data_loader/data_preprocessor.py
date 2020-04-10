@@ -27,7 +27,6 @@ import glob
 # import still works even though the error message persists
 import technical_indicators as ti
 
-
 # TODO: derive adjusted Open, High, Low from the downloaded data. Save back to file.
 def extract_features(fname, start, end):
 
@@ -52,7 +51,7 @@ def extract_features(fname, start, end):
 
     print(df.head)
     # save the modified excel file
-    df.to_excel('processed_data/'+'spy_processed.xlsx')
+    df.to_csv('processed_data/'+'spy_processed.csv')
 
 
 def append_indices(df):

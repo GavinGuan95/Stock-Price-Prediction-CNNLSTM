@@ -24,20 +24,46 @@ from torch import nn
 # print("second output")
 # output, _ = rnn(input, h0)
 # print(output)
-torch.manual_seed(0)
-rnn1_hidden = 11
-output_size = 1
-fc = nn.Linear(rnn1_hidden, output_size)
-x = torch.randn(6, 2, 11)
-print(x.shape)
-print(x)
-o = fc(x[-1, :, :])
-print(o.shape)
-print(o)
+# torch.manual_seed(0)
+# rnn1_hidden = 11
+# output_size = 1
+# fc = nn.Linear(rnn1_hidden, output_size)
+# x = torch.randn(6, 2, 11)
+# print(x.shape)
+# print(x)
+# o = fc(x[-1, :, :])
+# print(o.shape)
+# print(o)
+#
+# print("modify x")
+# x[5][1][0] = 1000.0
+# x[5][1][1] = 1000.0
+# o = fc(x[-1, :, :])
+# print(o.shape)
+# print(o)
 
-print("modify x")
-x[5][1][0] = 1000.0
-x[5][1][1] = 1000.0
-o = fc(x[-1, :, :])
-print(o.shape)
-print(o)
+from sklearn import preprocessing
+import numpy as np
+x = np.array([1,2,3,4,5])
+x2 = np.array([-2,4,6,8,10])
+k = np.sign(x) == np.sign(x2)
+print(k)
+s = np.sum(k)/np.size(k)
+print(s)
+# k = [x, x2]
+# s = np.stack(k, axis=1)
+# print(s)
+# x = np.stack((x, x2), axis=1)
+# print(x)
+# # x = x.reshape(-1, 1)
+# print(x)
+# transformer = preprocessing.StandardScaler()
+# x_std = transformer.fit_transform(x)
+# print(x_std)
+#
+# x_ori = transformer.inverse_transform(x_std)
+# print(x_ori)
+
+# std_x = preprocessing.scale(x)
+# print(std_x)
+
