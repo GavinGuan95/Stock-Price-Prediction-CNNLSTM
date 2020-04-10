@@ -29,7 +29,7 @@ import technical_indicators as ti
 
 
 # TODO: derive adjusted Open, High, Low from the downloaded data. Save back to file.
-def extract_features(fname,start,end):
+def extract_features(fname, start, end):
 
     # create an processed data folder
     if not os.path.exists('processed_data'):

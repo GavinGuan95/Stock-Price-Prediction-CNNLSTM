@@ -26,23 +26,52 @@ class MnistModel(BaseModel):
 class CNNLSTMModel(BaseModel):
     def __init__(self):
         super().__init__()
-        k = 3
-        self.conv1 = nn.Conv1d(1, 1, kernel_size=k) # no padding
-        self.conv2 = nn.Conv1d(1, 1, kernel_size=k)
-        self.rnn1 = nn.RNN(1, 3, 1)
-        self.fc = nn.Linear(3, 1)
+
+        #### Data Dependent ####
+        # input
+        self.input_dim = 1
+        # output
+        self.output_size = 1
+        ########################
+
+        #### Architecture Dependent ####
+        # convolution
+        self.num_conv = 2
+        self.conv_channels = [17, 17]
+        self.kernel_sizes = [3, 3]
+        assert(self.num_conv == len(self.conv_channels)) # ensure right amount of conv channel size is supplied
+
+        self.conv_channels.insert(0, self.input_dim)
+        self.conv_channels = list(zip(self.conv_channels, self.conv_channels[1:])) # convert conv_channels into a list of tuples for easier use
+
+        # rnn
+        self.rnn1_input = self.conv_channels[-1][-1]
+        self.rnn1_hidden = 11
+        self.rnn1_num_layers = 2
+        ################################
+
+        self.convs = nn.ModuleList([nn.Conv1d(in_channels=in_c, out_channels=out_c, kernel_size=k_size) for (in_c, out_c), k_size in zip(self.conv_channels, self.kernel_sizes)])
+        self.rnn1 = nn.LSTM(input_size=self.rnn1_input, hidden_size=self.rnn1_hidden, num_layers=self.rnn1_num_layers)
+        self.fc = nn.Linear(self.rnn1_hidden, self.output_size)
+
         # figure out how to use LSTM later
         # self.lstm1 = nn.LSTM(input_size=1, hidden_size=3, num_layers=2)
         # self.h0 = torch.zeros(2, 1, 3)
         # self.c0 = torch.zeros(2, 1, 3)
 
     def forward(self, x):
-        if x.dim() == 2:
-            x = x.view(x.shape[0], 1, x.shape[1])
-        x = F.relu(self.conv1(x))
-        x = F.relu(self.conv2(x))
-        x, _ = self.rnn1(x.view(1, -1, 1))
-        x = self.fc(x[-1, -1])
+        # print("input x.shape: {}".format(x.shape))
+        if x.dim() == 2: # currently only works if x is single series input (can be batched)
+            x = x.view(x.shape[0], 1, x.shape[1]) # batch, channel, sequence_length
+        # print("after view x.shape: {}".format(x.shape))
+        for conv in self.convs:
+            x = F.relu(conv(x))
+            # print("after conv x.shape: {}".format(x.shape))
+        x = x.permute(2, 0, 1) # RNN expects seq_len, batch, channel
+        x, _ = self.rnn1(x) # RNN outputs seq_len, batch, channel
+        # print("after rnn x.shape: {}".format(x.shape))
+        x = self.fc(x[-1, :, :]) # only use the output of the last time step to make our prediction
+        # print("after fc x.shape: {}".format(x.shape))
         # x, _ = self.lstm1(x, (self.h0, self.c0))
         return x
 

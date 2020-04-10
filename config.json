@@ -9,11 +9,11 @@
     "data_loader": {
         "type": "StockDataLoader",
         "args":{
-            "data_dir": "/home/guanyush/Pictures/CSC2516/CNNLSTM/data/STOCK/SPY.csv",
+            "data_dir": "/home/guanyush/Pictures/CSC2516/CNNLSTM/data/STOCK/SPY2.csv",
             "batch_size": 2,
             "shuffle": false,
             "validation_split": 0.1,
-            "num_workers": 2
+            "num_workers": 1
         }
     },
     "optimizer": {
@@ -36,7 +36,7 @@
         }
     },
     "trainer": {
-        "epochs": 2,
+        "epochs": 1,
 
         "save_dir": "saved/",
         "save_period": 1,

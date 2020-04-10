@@ -30,11 +30,13 @@ class StockDataset(Dataset):
     def __init__(self, csv_file, window=10):
         self.csv_file = csv_file
         self.df = pd.read_csv(self.csv_file)
+        columns = ['Adj Close', 'Close']
         self.series = torch.tensor(self.df['Adj Close'])
         self.data = []
         self.window = window
         for i in range(0, len(self.series)-self.window):
             self.data.append((self.series[i:i+self.window], self.series[i+self.window]))
+        dummy = 1
 
     def __len__(self):
         return len(self.data)
@@ -47,7 +49,7 @@ class StockDataLoader(BaseDataLoader):
     """
     MNIST data loading demo using BaseDataLoader
     """
-    def __init__(self, data_dir, batch_size, shuffle=True, validation_split=0.0, num_workers=1, training=True):
+    def __init__(self, data_dir, batch_size, shuffle=False, validation_split=0.0, num_workers=1, training=True):
         self.dataset = StockDataset(data_dir)
         super().__init__(self.dataset, batch_size, shuffle, validation_split, num_workers)
 

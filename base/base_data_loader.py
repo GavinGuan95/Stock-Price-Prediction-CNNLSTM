@@ -1,7 +1,7 @@
 import numpy as np
 from torch.utils.data import DataLoader
 from torch.utils.data.dataloader import default_collate
-from torch.utils.data.sampler import SubsetRandomSampler
+from torch.utils.data.sampler import SubsetRandomSampler, SequentialSampler
 
 
 class BaseDataLoader(DataLoader):
@@ -18,7 +18,7 @@ class BaseDataLoader(DataLoader):
         self.sampler, self.valid_sampler = self._split_sampler(self.validation_split)
 
         self.init_kwargs = {
-            'original_data': dataset,
+            'dataset': dataset,
             'batch_size': batch_size,
             'shuffle': self.shuffle,
             'collate_fn': collate_fn,
@@ -33,7 +33,7 @@ class BaseDataLoader(DataLoader):
         idx_full = np.arange(self.n_samples)
 
         np.random.seed(0)
-        np.random.shuffle(idx_full)
+        # np.random.shuffle(idx_full)
 
         if isinstance(split, int):
             assert split > 0
@@ -42,11 +42,15 @@ class BaseDataLoader(DataLoader):
         else:
             len_valid = int(self.n_samples * split)
 
-        valid_idx = idx_full[0:len_valid]
-        train_idx = np.delete(idx_full, np.arange(0, len_valid))
+        # valid_idx = idx_full[0:len_valid]
+        # train_idx = np.delete(idx_full, np.arange(0, len_valid))
+        train_idx = idx_full[:len(idx_full)-len_valid]
+        valid_idx = idx_full[len(idx_full)-len_valid:]
 
-        train_sampler = SubsetRandomSampler(train_idx)
-        valid_sampler = SubsetRandomSampler(valid_idx)
+        # train_sampler = SubsetRandomSampler(train_idx)
+        # valid_sampler = SubsetRandomSampler(valid_idx)
+        train_sampler = SequentialSampler(train_idx)
+        valid_sampler = SequentialSampler(valid_idx)
 
         # turn off shuffle option which is mutually exclusive with sampler
         self.shuffle = False
