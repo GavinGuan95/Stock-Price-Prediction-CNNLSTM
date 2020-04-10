@@ -54,7 +54,7 @@ class MnistDataLoader(BaseDataLoader):
 #         return self.data[idx]
 
 class StockDataset(Dataset):
-    def __init__(self, torch_matrix, window=20):
+    def __init__(self, torch_matrix, window=7):
         total_len = list(torch_matrix.shape)[1]
 
         self.window = window

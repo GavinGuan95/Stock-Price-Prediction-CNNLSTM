@@ -37,7 +37,7 @@ class CNNLSTMModel(BaseModel):
         #### Architecture Dependent ####
         # convolution
         self.conv_channels = [20, 20, 20]
-        self.dilation = [1, 2, 4]
+        self.dilation = [1, 1, 1]
         self.kernel_sizes = [3, 3, 3]
         self.num_conv = len(self.conv_channels)
         assert(len(self.conv_channels) == len(self.dilation) == len(self.kernel_sizes)) # ensure right amount of conv channel size is supplied

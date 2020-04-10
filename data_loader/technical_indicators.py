@@ -25,27 +25,27 @@ import numpy as np
 import pandas as pd
 import talib as ta
 
-def moving_average(df,n):
+def moving_average(df, small_win, big_win):
 
-    MA_2 = ta.SMA(df['Close'],timeperiod=2)
-    MA_n = ta.SMA(df['Close'],timeperiod=n)
+    MA_s = ta.SMA(df['Close'], timeperiod=small_win)
+    MA_b = ta.SMA(df['Close'], timeperiod=big_win)
 
-    MA = pd.Series((MA_n-MA_2)/MA_2, name='MA_' + str(n))
+    MA = pd.Series((MA_b-MA_s)/MA_s, name='MA_{}_{}'.format(small_win, big_win))
     df = df.join(MA)
     return df
 
 
-def exponential_moving_average(df, n):
+def exponential_moving_average(df, small_win, big_win):
     """
 
     :param df: pandas.DataFrame
     :param n:
     :return: pandas.DataFrame
     """
-    EMA_2 = df['Close'].ewm(span=2, min_periods=2).mean()
-    EMA_n = df['Close'].ewm(span=n, min_periods=n).mean()
+    EMA_2 = df['Close'].ewm(span=small_win, min_periods=small_win).mean()
+    EMA_n = df['Close'].ewm(span=big_win, min_periods=big_win).mean()
 
-    EMA = pd.Series((EMA_n-EMA_2)/EMA_2, name='EMA_' + str(n))
+    EMA = pd.Series((EMA_n-EMA_2)/EMA_2, name='EMA_{}_{}'.format(small_win, big_win))
     df = df.join(EMA)
     return df
 
