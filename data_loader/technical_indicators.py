@@ -26,7 +26,11 @@ import pandas as pd
 import talib as ta
 
 def moving_average(df,n):
-    MA = pd.Series(ta.SMA(df['Close'],timeperiod=n), name='MA_' + str(n))
+
+    MA_2 = ta.SMA(df['Close'],timeperiod=2)
+    MA_n = ta.SMA(df['Close'],timeperiod=n)
+
+    MA = pd.Series((MA_n-MA_2)/MA_2, name='MA_' + str(n))
     df = df.join(MA)
     return df
 
@@ -38,7 +42,10 @@ def exponential_moving_average(df, n):
     :param n:
     :return: pandas.DataFrame
     """
-    EMA = pd.Series(df['Close'].ewm(span=n, min_periods=n).mean(), name='EMA_' + str(n))
+    EMA_2 = df['Close'].ewm(span=2, min_periods=2).mean()
+    EMA_n = df['Close'].ewm(span=n, min_periods=n).mean()
+
+    EMA = pd.Series((EMA_n-EMA_2)/EMA_2, name='EMA_' + str(n))
     df = df.join(EMA)
     return df
 

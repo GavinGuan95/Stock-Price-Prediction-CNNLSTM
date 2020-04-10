@@ -42,14 +42,15 @@ def extract_features(fname, start, end):
     # select a time frame
     df = df.loc[start:end]
 
-    print(df.head)
     # call the technical functions in here
-    df = ti.moving_average(df,20)
+    df = ti.moving_average(df,3)
+    df = ti.exponential_moving_average(df,3)
     # df = ti.exponential_moving_average(df,20)
 
     # # call the economic functions in here
-    df = append_indices(df)
+    # df = append_indices(df)
 
+    print(df.head)
     # save the modified excel file
     df.to_excel('processed_data/'+'spy_processed.xlsx')
 
