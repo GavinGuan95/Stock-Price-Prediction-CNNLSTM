@@ -5,12 +5,22 @@ import os
 import pandas as pd
 import yfinance as yf
 
-csv_root = "../data/STOCK"
-os.mkdir(csv_root)
+csv_root = "../data_loader/original_data/indices"
+if not os.path.exists(csv_root):
+    os.mkdir(csv_root)
 
-ticker_list = ["SPY"]
-start_date = '2019-01-01'
-end_date = '2019-12-31'
+index_list = ["SPY","DJI","^IXIC","^GSPC","^NYA",
+               "^RUT","^HSI","000001.SS","^FCHI","^FTSE",
+               "^GDAXI"]
+
+company_list = ["AAPL","AMZN","GE","JNJ","JPM","MSFT","WFC","XOM"]
+
+forex_list = ["JPY=X","CNY=X","AUD=X","CAD=X","CHF=X","EUR=X","GBP=X","NZD=X"]
+
+ticker_list = index_list + forex_list + company_list
+
+start_date = '2000-01-01'
+end_date = '2020-04-01'
 
 for ticker in ticker_list:
     df = yf.download(ticker,

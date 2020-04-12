@@ -48,7 +48,7 @@ def extract_features(fname,start,end):
     # df = ti.exponential_moving_average(df,20)
 
     # # call the economic functions in here
-    # df = append_indices(df)
+    df = append_indices(df)
 
     print(df.head)
     # save the modified excel file
