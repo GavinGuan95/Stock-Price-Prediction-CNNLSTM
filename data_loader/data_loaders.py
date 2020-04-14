@@ -90,9 +90,9 @@ class StockDataLoader(BaseDataLoader):
         np_matrix = np.stack(np_array_list, axis=1)
         self.transformer = StandardScaler()
         np_matrix_normalized = self.transformer.fit_transform(np_matrix)
-
         # save the mean and variance to file
-        np.savez("norm_para", mean=self.transformer.mean_, var=self.transformer.var_)
+
+        np.savez("norm_para", mean=self.transformer.mean_, std=np.sqrt(self.transformer.var_))
 
         np_matrix_original = self.transformer.inverse_transform(np_matrix_normalized)
         torch_matrix = torch.tensor(np_matrix_normalized, dtype=torch.float).t()

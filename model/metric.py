@@ -33,10 +33,10 @@ def regression_binary_pred(output, target):
         # apply the inverse transform in here
         # load the transformation params from the saved file
         with np.load('norm_para.npz') as para:
-            mean, var = [para[i] for i in ('mean', 'var')]
+            mean, std = [para[i] for i in ('mean', 'std')]
 
-        output_np = (output_np*var)+mean
-        target_np = (target_np*var)+mean
+        output_np = (output_np*std)+mean
+        target_np = (target_np*std)+mean
 
         sign_match = np.sign(output_np) == np.sign(target_np)
         sign_match_percent = np.sum(sign_match)/np.size(sign_match)
