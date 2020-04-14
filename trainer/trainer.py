@@ -52,8 +52,10 @@ class Trainer(BaseTrainer):
             self.optimizer.step()
             # TODO [Gavin]: tensorboard visualization commented out
             # self.writer.set_step((epoch - 1) * self.len_epoch + batch_idx)
+            # training loss is mse loss
             self.train_metrics.update('loss', loss.item())
             for met in self.metric_ftns:
+                # regression binary pred was performed in here
                 self.train_metrics.update(met.__name__, met(output, target))
 
             if batch_idx % self.log_step == 0:

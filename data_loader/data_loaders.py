@@ -82,13 +82,18 @@ class StockDataLoader(BaseDataLoader):
 
     def normalization(self, csv_file):
         df = pd.read_csv(csv_file).dropna()
-        columns = ['MA_3', 'EMA_3']
+        # needs to add one more entry ROC_1
+        columns = ['MA_2_3', 'EMA_2_3']
         np_array_list = []
         for column in columns:
             np_array_list.append(df[column].to_numpy())
         np_matrix = np.stack(np_array_list, axis=1)
         self.transformer = StandardScaler()
         np_matrix_normalized = self.transformer.fit_transform(np_matrix)
+
+        # save the mean and variance to file
+        np.savez("norm_para", mean=self.transformer.mean_, var=self.transformer.var_)
+
         np_matrix_original = self.transformer.inverse_transform(np_matrix_normalized)
         torch_matrix = torch.tensor(np_matrix_normalized, dtype=torch.float).t()
         return torch_matrix
