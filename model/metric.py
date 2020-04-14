@@ -25,5 +25,8 @@ def regression_binary_pred(output, target):
         target_np = target.cpu().numpy()
         sign_match = np.sign(output_np) == np.sign(target_np)
         sign_match_percent = np.sum(sign_match)/np.size(sign_match)
-    # print("regression_binary_pred: {}, {}, {}".format(sign_match_percent, output, target))
+    # import random
+    # a = random.randrange(0, 5)
+    # if a == 0:
+    #     print("regression_binary_pred: {}, {}, {}".format(sign_match_percent, output, target))
     return sign_match_percent

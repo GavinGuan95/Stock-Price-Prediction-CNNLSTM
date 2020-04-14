@@ -9,10 +9,10 @@
     "data_loader": {
         "type": "StockDataLoader",
         "args":{
-            "data_dir": "/home/guanyush/Pictures/CSC2516/CNNLSTM/data_loader/processed_data/spy_processed.csv",
+            "data_dir": "/home/guanyush/Pictures/CSC2516/CNNLSTM/data_loader/original_data/SPY2.csv",
             "batch_size": 64,
             "shuffle": false,
-            "validation_split": 0.1,
+            "validation_split": 0.3,
             "num_workers": 1
         }
     },

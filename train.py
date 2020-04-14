@@ -23,7 +23,6 @@ def main(config):
     # setup data_loader instances
     data_loader = config.init_obj('data_loader', module_data)
     valid_data_loader = data_loader.split_validation()
-
     input_size = list(data_loader.dataset[0][0].shape)[0]
     output_size = list(data_loader.dataset[0][1].shape)[0]
     # build model architecture, then print to console

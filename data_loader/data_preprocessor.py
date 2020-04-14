@@ -28,7 +28,7 @@ import glob
 import technical_indicators as ti
 
 # TODO: derive adjusted Open, High, Low from the downloaded data. Save back to file.
-def extract_features(fname, start, end):
+def extract_features(fname, start=None, end=None, index="Date", economic=True):
 
     # create an processed data folder
     if not os.path.exists('processed_data'):
@@ -37,21 +37,36 @@ def extract_features(fname, start, end):
     # get the data set from fname
     # has to use csv if the file is in csv format
     df = pd.read_csv(fname)
-    df= df.set_index("Date")
+    df = df.set_index(index)
+
     # select a time frame
-    df = df.loc[start:end]
+    if start is None and end is None:
+        df = df
+    elif start is None and end is not None:
+        df = df.loc[:end]
+    elif start is not None and end is None:
+        df = df.loc[start:]
+    else:
+        df = df[start:end]
 
     # call the technical functions in here
     df = ti.moving_average(df, 2, 3)
-    df = ti.exponential_moving_average(df,2, 3)
-    # df = ti.exponential_moving_average(df,20)
+    df = ti.exponential_moving_average(df, 2, 3)
+    df = ti.moving_average(df, 2, 5)
+    df = ti.exponential_moving_average(df, 2, 5)
+    df = ti.moving_average(df, 2, 10)
+    df = ti.exponential_moving_average(df, 2, 10)
+    df = ti.moving_average(df, 2, 20)
+    df = ti.exponential_moving_average(df, 2, 20)
+    df = ti.rate_of_change(df, 1)
 
-    # # call the economic functions in here
-    df = append_indices(df)
+    # call the economic functions in here
+    if economic:
+        df = append_indices(df)
 
     print(df.head)
     # save the modified excel file
-    df.to_csv('processed_data/'+'another_spy_processed.csv')
+    df.to_csv("/home/guanyush/Pictures/CSC2516/CNNLSTM/data_loader/original_data/SPY2.csv")
 
 
 def append_indices(df):
@@ -59,13 +74,13 @@ def append_indices(df):
     for fname in glob.glob('original_data/indices/*.csv'):
         print(fname)
         df_i = pd.read_csv(fname)
-        df = match(df,df_i,fname.split("\\")[1].split(".")[0])
+        df = match(df, df_i, fname.split("\\")[1].split(".")[0])
         print(df_i.shape,df.shape)
     return df
 
 
 # helper function for aligning feature data against the data of interest in this case SPY
-def match(sp_df,df_i,nam):
+def match(sp_df, df_i, nam):
     # fill missing data by extending previous day's day
     df_i = df_i.fillna(method='pad')
 
@@ -79,13 +94,15 @@ def match(sp_df,df_i,nam):
     df_merged = pd.merge(sp_df, df_i, how="inner", on=["Date"])
 
     if df_merged.shape[0]<sp_df.shape[0]:
-        df_merged = pd.merge(sp_df, df_merged.loc[:,["Date",nam]], how="outer", on=["Date"])
+        df_merged = pd.merge(sp_df, df_merged.loc[:, ["Date", nam]], how="outer", on=["Date"])
         df_merged = df_merged.fillna(method ="pad")
 
     return df_merged
 
 
 if __name__ == "__main__":
-    fname = "original_data/" +"SPY.csv"
+    # fname = "/home/guanyush/Pictures/CSC2516/CNNLSTM/data_loader/processed_data/kibot.csv"
+    # extract_features(fname, index="Unnamed: 0", economic=False)
 
-    extract_features(fname,"2010-03-31","2019-03-31")
+    fname = os.path.join("/home/guanyush/Pictures/CSC2516/CNNLSTM/data_loader/original_data/SPY.csv")
+    extract_features(fname, economic=False)
