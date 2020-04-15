@@ -67,3 +67,14 @@ print(s)
 # std_x = preprocessing.scale(x)
 # print(std_x)
 
+from sklearn.preprocessing import StandardScaler
+import numpy as np
+data = np.array([[1,1],[2,2],[3,3]])
+print(data)
+transformer = StandardScaler()
+data_norm = transformer.fit_transform(data)
+print(data_norm)
+
+print(transformer.mean_,transformer.var_)
+
+print(data_norm* np.sqrt(transformer.var_)+transformer.mean_)
