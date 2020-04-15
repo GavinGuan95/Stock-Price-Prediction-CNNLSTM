@@ -9,11 +9,7 @@
     "data_loader": {
         "type": "StockDataLoader",
         "args":{
-<<<<<<< HEAD
-            "data_dir": "/home/guanyush/Pictures/CSC2516/CNNLSTM/data_loader/original_data/SPY2.csv",
-=======
             "data_dir": "./data_loader/processed_data/spy_processed.csv",
->>>>>>> merge_changes
             "batch_size": 64,
             "shuffle": false,
             "validation_split": 0.3,

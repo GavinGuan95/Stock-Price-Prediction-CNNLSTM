@@ -82,8 +82,8 @@ class StockDataLoader(BaseDataLoader):
         self.output_transformer = StandardScaler()
 
         # input_columns = ['MA_2_3', 'EMA_2_3', "ROC_1"]
-        input_columns = ["MA_2_3", "EMA_2_3", "MA_2_5", "EMA_2_5", "MA_2_10", "EMA_2_10", "MA_2_20", "EMA_2_20", "ROC_1"]
-        target_columns = ["MA_2_3"]
+        input_columns = ["MA_2_3", "EMA_2_3"]
+        target_columns = ["ROC_1"]
         # input_columns = ['Close', 'Adj Close', 'ROC_1']
         # target_columns = ['ROC_1']
         input_torch_matrix = self.normalization(data_dir, input_columns, self.input_transformer, normalization=True)
@@ -94,7 +94,6 @@ class StockDataLoader(BaseDataLoader):
 
     def normalization(self, csv_file, columns, transformer, normalization=True):
         df = pd.read_csv(csv_file).dropna()
-        columns = ['MA_3', 'EMA_3']
         np_array_list = []
         for column in columns:
             np_array_list.append(df[column].to_numpy())
