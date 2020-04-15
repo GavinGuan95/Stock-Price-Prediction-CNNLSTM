@@ -12,7 +12,7 @@
             "data_dir": "./data_loader/processed_data/spy_processed.csv",
             "batch_size": 64,
             "shuffle": false,
-            "validation_split": 0.1,
+            "validation_split": 0.3,
             "num_workers": 1
         }
     },
