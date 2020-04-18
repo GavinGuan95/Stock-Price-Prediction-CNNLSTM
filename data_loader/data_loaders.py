@@ -54,7 +54,7 @@ class MnistDataLoader(BaseDataLoader):
 #         return self.data[idx]
 
 class StockDataset(Dataset):
-    def __init__(self, input_torch_matrix, target_torch_matrix, window=20):
+    def __init__(self, input_torch_matrix, target_torch_matrix, window=10):
         assert(list(input_torch_matrix.shape)[1] == list(target_torch_matrix.shape)[1])
         total_len = list(input_torch_matrix.shape)[1]
 
@@ -83,7 +83,13 @@ class StockDataLoader(BaseDataLoader):
 
         # input_columns = ['MA_2_3', 'EMA_2_3', "ROC_1"]
         input_columns = ["MA_2_3", "EMA_2_3"]
-        target_columns = ["ROC_1"]
+        # input_columns = ["MA_2_3", "EMA_2_3",
+        #                  "AAPL","AMZN","GE","JNJ","JPM","MSFT","WFC","XOM",
+        #                  "AUD=X","CAD=X","CHF=X","CNY=X","EUR=X","GBP=X","JPY=X","NZD=X","usd index",
+        #                  "^DJI","SS","^FCHI","^FTSE","^GDAXI","^GSPC","^HSI","^IXIC","^NYA","^RUT"]
+        # input_columns = ["ROC_1"]
+        # target_columns = ["ROC_1"]
+        target_columns = ["f_MA_10","f_EMA_10"]
         # input_columns = ['Close', 'Adj Close', 'ROC_1']
         # target_columns = ['ROC_1']
         input_torch_matrix = self.normalization(data_dir, input_columns, self.input_transformer, "input", normalization=True)

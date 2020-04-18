@@ -50,27 +50,15 @@ def extract_features(fname, start=None, end=None, index="Date", economic=True):
         df = df[start:end]
 
     # call the technical functions in here
-    df = ti.moving_average(df, 2, 3)
-<<<<<<< HEAD
-    df = ti.exponential_moving_average(df, 2, 3)
-    df = ti.moving_average(df, 2, 5)
-    df = ti.exponential_moving_average(df, 2, 5)
-    df = ti.moving_average(df, 2, 10)
-    df = ti.exponential_moving_average(df, 2, 10)
-    df = ti.moving_average(df, 2, 20)
-    df = ti.exponential_moving_average(df, 2, 20)
-    df = ti.rate_of_change(df, 1)
-
-    # call the economic functions in here
-    if economic:
-        df = append_indices(df)
 
     print(df.head)
     # save the modified excel file
-    df.to_csv("/home/guanyush/Pictures/CSC2516/CNNLSTM/data_loader/original_data/SPY2.csv")
-=======
-    df = ti.exponential_moving_average(df,2, 3)
+    df.to_csv("original_data/SPY2.csv")
+    df = ti.exponential_moving_average(df,2,3)
+    df = ti.moving_average(df,2,3)
     df = ti.rate_of_change(df,1)
+    df = ti.future_moving_average(df,10)
+    df = ti.future_exponential_moving_average(df,10)
     # df = ti.exponential_moving_average(df,20)
 
     # # call the economic functions in here
@@ -79,7 +67,6 @@ def extract_features(fname, start=None, end=None, index="Date", economic=True):
     print(df.head)
     # save the modified excel file
     df.to_csv('processed_data/'+'spy_processed.csv')
->>>>>>> merge_changes
 
 
 def append_indices(df):
@@ -117,5 +104,5 @@ if __name__ == "__main__":
     # fname = "/home/guanyush/Pictures/CSC2516/CNNLSTM/data_loader/processed_data/kibot.csv"
     # extract_features(fname, index="Unnamed: 0", economic=False)
 
-    fname = os.path.join("/home/guanyush/Pictures/CSC2516/CNNLSTM/data_loader/original_data/SPY.csv")
+    fname = os.path.join("original_data/SPY.csv")
     extract_features(fname, economic=False)
