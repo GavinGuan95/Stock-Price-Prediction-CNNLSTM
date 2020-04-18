@@ -86,13 +86,13 @@ class StockDataLoader(BaseDataLoader):
         target_columns = ["ROC_1"]
         # input_columns = ['Close', 'Adj Close', 'ROC_1']
         # target_columns = ['ROC_1']
-        input_torch_matrix = self.normalization(data_dir, input_columns, self.input_transformer, "input", normalization=True)
-        target_torch_matrix = self.normalization(data_dir, target_columns, self.output_transformer, "target", normalization=True)
+        input_torch_matrix = self.normalization(data_dir, input_columns, self.input_transformer, normalization=True)
+        target_torch_matrix = self.normalization(data_dir, target_columns, self.output_transformer, normalization=True)
         self.dataset = StockDataset(input_torch_matrix, target_torch_matrix)
 
         super().__init__(self.dataset, batch_size, shuffle, validation_split, num_workers)
 
-    def normalization(self, csv_file, columns, transformer, tag, normalization=True):
+    def normalization(self, csv_file, columns, transformer, normalization=True):
         df = pd.read_csv(csv_file).dropna()
         np_array_list = []
         for column in columns:
@@ -104,10 +104,6 @@ class StockDataLoader(BaseDataLoader):
             np_matrix_normalized = np_matrix
         # demonstrate that unnormalization can be done
         # np_matrix_original = self.transformer.inverse_transform(np_matrix_normalized)
-
-        # save the mean and variance to file
-        np.savez(tag+"_norm_para", mean=transformer.mean_, std=np.sqrt(transformer.var_))
-
         torch_matrix = torch.tensor(np_matrix_normalized, dtype=torch.float).t()
         return torch_matrix
 

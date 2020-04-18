@@ -54,16 +54,13 @@ class MnistDataLoader(BaseDataLoader):
 #         return self.data[idx]
 
 class StockDataset(Dataset):
-    def __init__(self, input_torch_matrix, target_torch_matrix, window=20):
-        assert(list(input_torch_matrix.shape)[1] == list(target_torch_matrix.shape)[1])
-        total_len = list(input_torch_matrix.shape)[1]
+    def __init__(self, torch_matrix, window=7):
+        total_len = list(torch_matrix.shape)[1]
 
         self.window = window
         self.data = []
         for i in range(0, total_len-self.window):
-            # append a tuple: (input, target)
-            self.data.append((input_torch_matrix[:, i:i + self.window],
-                              target_torch_matrix[:, i + self.window]))
+            self.data.append((torch_matrix[:,i:i+self.window], torch_matrix[:,i+self.window]))
         dummy = 1
 
     def __len__(self):
@@ -77,37 +74,27 @@ class StockDataLoader(BaseDataLoader):
     MNIST data loading demo using BaseDataLoader
     """
     def __init__(self, data_dir, batch_size, shuffle=False, validation_split=0.0, num_workers=1, training=True):
-        # the transformer may be needed for transforming later
-        self.input_transformer = StandardScaler()
-        self.output_transformer = StandardScaler()
-
-        # input_columns = ['MA_2_3', 'EMA_2_3', "ROC_1"]
-        input_columns = ["MA_2_3", "EMA_2_3"]
-        target_columns = ["ROC_1"]
-        # input_columns = ['Close', 'Adj Close', 'ROC_1']
-        # target_columns = ['ROC_1']
-        input_torch_matrix = self.normalization(data_dir, input_columns, self.input_transformer, "input", normalization=True)
-        target_torch_matrix = self.normalization(data_dir, target_columns, self.output_transformer, "target", normalization=True)
-        self.dataset = StockDataset(input_torch_matrix, target_torch_matrix)
+        self.transformer = None
+        torch_matrix = self.normalization(data_dir)
+        self.dataset = StockDataset(torch_matrix)
 
         super().__init__(self.dataset, batch_size, shuffle, validation_split, num_workers)
 
-    def normalization(self, csv_file, columns, transformer, tag, normalization=True):
+    def normalization(self, csv_file):
         df = pd.read_csv(csv_file).dropna()
+        # needs to add one more entry ROC_1
+        columns = ['MA_2_3', 'EMA_2_3']
         np_array_list = []
         for column in columns:
             np_array_list.append(df[column].to_numpy())
         np_matrix = np.stack(np_array_list, axis=1)
-        if normalization:
-            np_matrix_normalized = transformer.fit_transform(np_matrix)
-        else:
-            np_matrix_normalized = np_matrix
-        # demonstrate that unnormalization can be done
-        # np_matrix_original = self.transformer.inverse_transform(np_matrix_normalized)
+        self.transformer = StandardScaler()
+        np_matrix_normalized = self.transformer.fit_transform(np_matrix)
 
         # save the mean and variance to file
-        np.savez(tag+"_norm_para", mean=transformer.mean_, std=np.sqrt(transformer.var_))
+        np.savez("norm_para", mean=self.transformer.mean_, std=np.sqrt(self.transformer.var_))
 
+        np_matrix_original = self.transformer.inverse_transform(np_matrix_normalized)
         torch_matrix = torch.tensor(np_matrix_normalized, dtype=torch.float).t()
         return torch_matrix
 
