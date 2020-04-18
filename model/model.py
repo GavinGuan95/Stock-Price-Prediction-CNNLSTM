@@ -49,11 +49,12 @@ class CNNLSTMModel(BaseModel):
         self.rnn1_input = self.conv_channels[-1][-1]
         self.rnn1_hidden = 20
         self.rnn1_num_layers = 2
+        self.rnn_dropout = 0.1
         ################################
 
         self.convs = nn.ModuleList([nn.Conv1d(in_channels=in_c, out_channels=out_c, dilation=dilation, kernel_size=k_size)
                                     for (in_c, out_c), dilation, k_size in zip(self.conv_channels, self.dilation, self.kernel_sizes)])
-        self.rnn1 = nn.LSTM(input_size=self.rnn1_input, hidden_size=self.rnn1_hidden, num_layers=self.rnn1_num_layers)
+        self.rnn1 = nn.LSTM(input_size=self.rnn1_input, hidden_size=self.rnn1_hidden, num_layers=self.rnn1_num_layers, dropout=self.rnn_dropout)
         self.fc = nn.Linear(self.rnn1_hidden, self.output_dim)
 
         # figure out how to use LSTM later
@@ -68,10 +69,12 @@ class CNNLSTMModel(BaseModel):
         # print("after view x.shape: {}".format(x.shape))
         for conv in self.convs:
             x = F.relu(conv(x))
+            x = F.dropout(x, p=self.rnn_dropout)
             # print("after conv x.shape: {}".format(x.shape))
         x = x.permute(2, 0, 1) # RNN expects seq_len, batch, channel
         x, _ = self.rnn1(x) # RNN outputs seq_len, batch, channel
         # print("after rnn x.shape: {}".format(x.shape))
+        x = F.dropout(x, p=self.rnn_dropout)
         x = self.fc(x[-1, :, :]) # only use the output of the last time step to make our prediction
         # print("after fc x.shape: {}".format(x.shape))
         return x

@@ -10,7 +10,7 @@
         "type": "StockDataLoader",
         "args":{
             "data_dir": "./data_loader/processed_data/spy_processed.csv",
-            "batch_size": 64,
+            "batch_size": 20,
             "shuffle": false,
             "validation_split": 0.3,
             "num_workers": 1

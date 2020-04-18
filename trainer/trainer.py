@@ -85,22 +85,44 @@ class Trainer(BaseTrainer):
         :param epoch: Integer, current training epoch.
         :return: A log that contains information about validation
         """
-        self.model.eval()
+        # self.model.eval()
+        self.model.train()
         self.valid_metrics.reset()
         with torch.no_grad():
             for batch_idx, (data, target) in enumerate(self.valid_data_loader):
-                # print("validation batch_idx: {} ,target: {}, data: {}".format(batch_idx, target, data))
-                data, target = data.to(self.device), target.to(self.device)
+                output_list = []
+                for i in range(0, 10):
+                    # print("validation batch_idx: {} ,target: {}, data: {}".format(batch_idx, target, data))
+                    data, target = data.to(self.device), target.to(self.device)
 
-                output = self.model(data)
-                loss = self.criterion(output, target)
-                # TODO [Gavin]: tensorboard visualization commented out
-                # self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid')
-                self.valid_metrics.update('loss', loss.item())
-                for met in self.metric_ftns:
-                    self.valid_metrics.update(met.__name__, met(output, target))
-                # TODO [Gavin]: tensorboard visualization commented out
-                # self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
+                    output = self.model(data)
+                    output_list.append(output)
+                    loss = self.criterion(output, target)
+                    # TODO [Gavin]: tensorboard visualization commented out
+                    # self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid')
+                    self.valid_metrics.update('loss', loss.item())
+                    for met in self.metric_ftns:
+                        self.valid_metrics.update(met.__name__, met(output, target))
+                    # TODO [Gavin]: tensorboard visualization commented out
+                    # self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
+                stacked_output = torch.stack(output_list, dim=1).cpu().numpy().squeeze()
+                stacked_sign = np.sign(stacked_output)
+                output_mean = np.mean(stacked_output, axis=1)
+                output_var = np.var(stacked_output, axis=1)
+                output_percent = (np.sum(stacked_sign, axis=1) / stacked_sign.shape[1] + 1) / 2
+                if (output_mean > 0).all() or (output_mean < 0).all():
+                    print("all equal sign")
+                else:
+                    print("not equal sign")
+                print("------------------ mean -----------------")
+                print(output_mean)
+                print("------------------ var ------------------")
+                print(output_var)
+                print("------------------ percent -------------")
+                print(output_percent)
+                print("---------------- target ---------------")
+                print(target.cpu().numpy().squeeze())
+                dummy = 1
 
         # TODO [Gavin]: tensorboard visualization commented out
         # add histogram of model parameters to the tensorboard
