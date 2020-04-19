@@ -58,7 +58,9 @@ def extract_features(fname, start=None, end=None, index="Date", economic=True):
     df = ti.moving_average(df,2,3)
     df = ti.rate_of_change(df,1)
     df = ti.future_moving_average(df, 2)
+    # df = ti.future_moving_average_2(df,2)
     df = ti.future_exponential_moving_average(df, 2)
+    # df = ti.future_exponential_moving_average_2(df, 2)
     # df = ti.exponential_moving_average(df,20)
 
     # # call the economic functions in here
