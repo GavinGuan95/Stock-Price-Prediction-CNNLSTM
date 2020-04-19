@@ -22,7 +22,7 @@ import os
 import numpy as np
 import pandas as pd
 import glob
-# import talib as ta
+import talib as ta
 
 # import still works even though the error message persists
 import technical_indicators as ti
@@ -57,8 +57,8 @@ def extract_features(fname, start=None, end=None, index="Date", economic=True):
     df = ti.exponential_moving_average(df,2,3)
     df = ti.moving_average(df,2,3)
     df = ti.rate_of_change(df,1)
-    df = ti.future_moving_average(df,10)
-    df = ti.future_exponential_moving_average(df,10)
+    df = ti.future_moving_average(df,2)
+    df = ti.future_exponential_moving_average(df,2)
     # df = ti.exponential_moving_average(df,20)
 
     # # call the economic functions in here
@@ -103,6 +103,8 @@ def match(sp_df, df_i, nam):
 if __name__ == "__main__":
     # fname = "/home/guanyush/Pictures/CSC2516/CNNLSTM/data_loader/processed_data/kibot.csv"
     # extract_features(fname, index="Unnamed: 0", economic=False)
+
+    print(ta.__version__)
 
     fname = os.path.join("original_data/SPY.csv")
     extract_features(fname, economic=False)

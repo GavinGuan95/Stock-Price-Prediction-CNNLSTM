@@ -62,11 +62,11 @@ def future_moving_average(df,n):
 
 def future_exponential_moving_average(df,n):
     # reverse the series to get future moving aveerage
-    f_MA_n = ta.EMA(df['Close'][::-1], timeperiod=n)
+    f_EMA_n = ta.EMA(df['Close'][::-1], timeperiod=n)
     EMA_shift = df['Close'][::-1].shift(-1, axis = 0)
 
 
-    fMA = pd.Series((f_MA_n-EMA_shift)/EMA_shift, name='f_EMA_{}'.format(n))
+    fMA = pd.Series((f_EMA_n-EMA_shift)/EMA_shift, name='f_EMA_{}'.format(n))
     df = df.join(fMA)
     return df
 
