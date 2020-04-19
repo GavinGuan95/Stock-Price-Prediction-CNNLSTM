@@ -50,23 +50,22 @@ def exponential_moving_average(df, small_win, big_win):
     return df
 
 
-def future_moving_average(df,n):
+def future_moving_average(df, n):
     # reverse the series to get future moving aveerage
     f_MA_n = ta.SMA(df['Close'][::-1], timeperiod=n)
-    MA_shift = df['Close'][::-1].shift(-1, axis = 0)
+    MA_shift = df['Close'][::-1].shift(-1, axis=0)
 
     fMA = pd.Series((f_MA_n-MA_shift)/MA_shift, name='f_MA_{}'.format(n))
     df = df.join(fMA)
     return df
 
 
-def future_exponential_moving_average(df,n):
+def future_exponential_moving_average(df, n):
     # reverse the series to get future moving aveerage
-    f_EMA_n = ta.EMA(df['Close'][::-1], timeperiod=n)
-    EMA_shift = df['Close'][::-1].shift(-1, axis = 0)
+    f_MA_n = ta.EMA(df['Close'][::-1], timeperiod=n)
+    EMA_shift = df['Close'][::-1].shift(-1, axis=0)
 
-
-    fMA = pd.Series((f_EMA_n-EMA_shift)/EMA_shift, name='f_EMA_{}'.format(n))
+    fMA = pd.Series((f_MA_n-EMA_shift)/EMA_shift, name='f_EMA_{}'.format(n))
     df = df.join(fMA)
     return df
 
@@ -129,7 +128,6 @@ def bollinger_bands(df, n):
     df = df.join(lb)
 
     return df
-
 
 
 def relative_strength_index(df, n):
@@ -197,7 +195,6 @@ def acc_dist(df):
     The accumulation/distribution measure seeks to identify divergences between the stock price and volume flow
     This value is different from that of Yahoo Finance
     """
-
 
     CMFV = pd.Series(ta.AD(df['High'], df['Low'], df['Close'],df['Volume']), name="A/D - Current money flow volume")
     df = df.join(CMFV)

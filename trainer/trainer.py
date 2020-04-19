@@ -89,7 +89,7 @@ class Trainer(BaseTrainer):
         self.valid_metrics.reset()
         with torch.no_grad():
             for batch_idx, (data, target) in enumerate(self.valid_data_loader):
-                # print("validation batch_idx: {} ,target: {}, data: {}".format(batch_idx, target, data))
+                print("validation batch_idx: {} ,target: {}, data: {}".format(batch_idx, target, data))
                 data, target = data.to(self.device), target.to(self.device)
 
                 output = self.model(data)
