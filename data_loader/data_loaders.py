@@ -6,6 +6,7 @@ import os
 from torchvision import datasets, transforms
 from base import BaseDataLoader
 from torch.utils.data import DataLoader, Dataset, Sampler
+from data_preprocessor import extract_features
 
 import torch
 import numpy as np
@@ -82,16 +83,20 @@ class StockDataLoader(BaseDataLoader):
         self.output_transformer = StandardScaler()
 
         # input_columns = ['MA_2_3', 'EMA_2_3', "ROC_1"]
-        input_columns = ["MA_2_3", "EMA_2_3"]
+        input_columns = ["SMA_2_3", "EMA_2_3"]
         # input_columns = ["MA_2_3", "EMA_2_3",
         #                  "AAPL","AMZN","GE","JNJ","JPM","MSFT","WFC","XOM",
         #                  "AUD=X","CAD=X","CHF=X","CNY=X","EUR=X","GBP=X","JPY=X","NZD=X","usd index",
         #                  "^DJI","SS","^FCHI","^FTSE","^GDAXI","^GSPC","^HSI","^IXIC","^NYA","^RUT"]
         # input_columns = ["ROC_1"]
         # target_columns = ["ROC_1"]
-        target_columns = ["f_MA_10","f_EMA_10"]
-        # input_columns = ['Close', 'Adj Close', 'ROC_1']
-        # target_columns = ['ROC_1']
+
+        target_columns = ["FSMA_10","FEMA_10"]
+
+        # call the data preprocessor in here - saved to spy_processed.csv
+        extract_features(features_col=input_columns + target_columns,economic=False)
+        # saved the input and output columns to
+
         input_torch_matrix = self.normalization(data_dir, input_columns, self.input_transformer, "input", normalization=True)
         target_torch_matrix = self.normalization(data_dir, target_columns, self.output_transformer, "target", normalization=True)
         self.dataset = StockDataset(input_torch_matrix, target_torch_matrix)

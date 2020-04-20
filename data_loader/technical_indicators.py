@@ -30,7 +30,7 @@ def moving_average(df, small_win, big_win):
     MA_s = ta.SMA(df['Close'], timeperiod=small_win)
     MA_b = ta.SMA(df['Close'], timeperiod=big_win)
 
-    MA = pd.Series((MA_b-MA_s)/MA_s, name='MA_{}_{}'.format(small_win, big_win))
+    MA = pd.Series((MA_b-MA_s)/MA_s, name='SMA_{}_{}'.format(small_win, big_win))
     df = df.join(MA)
     return df
 
@@ -65,7 +65,7 @@ def future_moving_average(df, n):
     f_MA_n = df['Close'][::-1].rolling(window=n).mean()
     MA_shift = df['Close'][::-1].shift(-1, axis=0)
 
-    fMA = pd.Series((f_MA_n-MA_shift)/MA_shift, name='f_MA_{}'.format(n))
+    fMA = pd.Series((f_MA_n-MA_shift)/MA_shift, name='FSMA_{}'.format(n))
     df = df.join(fMA)
     return df
 
@@ -85,7 +85,7 @@ def future_exponential_moving_average(df, n):
     f_MA_n = df['Close'][::-1].ewm(span=n, min_periods=n).mean()
     EMA_shift = df['Close'][::-1].shift(-1, axis=0)
 
-    fMA = pd.Series((f_MA_n-EMA_shift)/EMA_shift, name='f_EMA_{}'.format(n))
+    fMA = pd.Series((f_MA_n-EMA_shift)/EMA_shift, name='FEMA_{}'.format(n))
     df = df.join(fMA)
     return df
 

@@ -35,11 +35,24 @@ def regression_binary_pred(output, target):
         with np.load('target_norm_para.npz') as para:
             mean, std = [para[i] for i in ('mean', 'std')]
 
-        output_np = (output_np*std)+mean
-        target_np = (target_np*std)+mean
+        # output_np = (output_np*std)+mean
+        # target_np = (target_np*std)+mean
 
         sign_match = np.sign(output_np) == np.sign(target_np)
-        sign_match_percent = np.sum(sign_match)/np.size(sign_match)
+        sign_match_percent = np.sum(sign_match)/np.size(sign_match)\
+
+        # calculate the precision, recall and F1-score here
+        TP = np.sum(np.sign(output_np) + np.sign(target_np)==2)
+        TN = np.sum((np.sign(output_np) + np.sign(target_np))==-2)
+        FP = np.sum((np.sign(target_np)-np.sign(output_np))==-2)
+        FN = np.sum((np.sign(target_np)-np.sign(output_np))==2)
+
+        precision = TP/(TP+FP)
+        recall = TP/(TP+FN)
+        F_1_score = 2*precision*recall/(precision+recall)
+
+        # if TN!=0:
+        #     print(TN)
     # import random
     # a = random.randrange(0, 5)
     # if a == 0:
