@@ -8,7 +8,9 @@ import model.metric as module_metric
 import model.model as module_arch
 from parse_config import ConfigParser
 from trainer import Trainer
-
+import glob
+import json
+import pandas as pd
 
 # fix random seeds for reproducibility
 SEED = 123
@@ -17,7 +19,7 @@ torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 np.random.seed(SEED)
 
-def main(config):
+def main(config,config_f):
     logger = config.get_logger('train')
 
     # setup data_loader instances
@@ -46,22 +48,75 @@ def main(config):
                       lr_scheduler=lr_scheduler)
 
     trainer.train()
+#     save result to JSON
 
+    with np.load('results.npz') as result:
+        reg_binary_pred, F_1_score = [result[i] for i in ('regression_binary_pred', 'F_1_score')]
+
+    with open(config_f, "r") as f_object:
+        data = json.load(f_object)
+
+    data["results"]["accuracy"] = np.sum(reg_binary_pred)
+    data["results"]["f-1 score"] = np.sum(F_1_score)
+    with open(config_f, "w") as f_object:
+        json.dump(data, f_object,indent=4)
+
+
+def save_to_excel():
+    name_list = []
+    batch_size = []
+    context_win = []
+    input_columns = []
+    target_columns = []
+    regression_binary_pred = []
+    F_1_score = []
+
+    for fname in glob.glob('data_loader/configs/*.json'):
+        with open(fname, "r") as f_object:
+            data = json.load(f_object)
+
+            name_list.append(fname.split("\\")[1].split(".")[0])
+            batch_size.append(data["data_loader"]["args"]["batch_size"])
+            context_win.append(data["data_loader"]["args"]["window"])
+            input_columns.append(data["data_loader"]["args"]["input_columns"])
+            target_columns.append(data["data_loader"]["args"]["target_columns"])
+            regression_binary_pred.append(data["results"]["accuracy"])
+            F_1_score.append(data["results"]["f-1 score"])
+
+    df = pd.DataFrame(np.array([name_list,batch_size,context_win,input_columns,target_columns,regression_binary_pred,F_1_score]).T,
+                      columns=["file names","batch size","context window","input columns","target_columns","regression_binary_pred","F_1_score"])
+
+    print(df)
+
+    df.to_excel('data_loader/configs/saved_results.xlsx')
 
 if __name__ == '__main__':
-    args = argparse.ArgumentParser(description='PyTorch Template')
-    args.add_argument('-c', '--config', default=None, type=str,
-                      help='config file path (default: None)')
-    args.add_argument('-r', '--resume', default=None, type=str,
-                      help='path to latest checkpoint (default: None)')
-    args.add_argument('-d', '--device', default=None, type=str,
-                      help='indices of GPUs to enable (default: all)')
 
-    # custom cli options to modify configuration from default values given in json file.
-    CustomArgs = collections.namedtuple('CustomArgs', 'flags type target')
-    options = [
-        CustomArgs(['--lr', '--learning_rate'], type=float, target='optimizer;args;lr'),
-        CustomArgs(['--bs', '--batch_size'], type=int, target='data_loader;args;batch_size')
-    ]
-    config = ConfigParser.from_args(args, options)
-    main(config)
+    # write your for loop in here
+    # config = ConfigParser.from_args(args,["-c","config.json"],options)
+    # main(config)
+
+
+
+    for fname in glob.glob('data_loader/configs/*.json'):
+        print("loading... ",fname)
+        args = argparse.ArgumentParser(description='PyTorch Template')
+        args.add_argument('-c', '--config', default=None, type=str,
+                          help='config file path (default: None)')
+        args.add_argument('-r', '--resume', default=None, type=str,
+                          help='path to latest checkpoint (default: None)')
+        args.add_argument('-d', '--device', default=None, type=str,
+                          help='indices of GPUs to enable (default: all)')
+
+        # custom cli options to modify configuration from default values given in json file.
+        CustomArgs = collections.namedtuple('CustomArgs', 'flags type target')
+        options = [
+            CustomArgs(['--lr', '--learning_rate'], type=float, target='optimizer;args;lr'),
+            CustomArgs(['--bs', '--batch_size'], type=int, target='data_loader;args;batch_size')
+        ]
+        config = ConfigParser.from_args(args, ["-c", fname], options)
+        main(config,fname)
+
+    save_to_excel()
+
+    # save all config files into excel
