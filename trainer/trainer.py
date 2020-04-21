@@ -73,6 +73,7 @@ class Trainer(BaseTrainer):
         if self.do_validation:
             val_log = self._valid_epoch(epoch)
             log.update(**{'val_'+k : v for k, v in val_log.items()})
+            np.savez("results.npz", regression_binary_pred=val_log["regression_binary_pred"],F_1_score = val_log["f1_score"])
 
         if self.lr_scheduler is not None:
             self.lr_scheduler.step()
@@ -89,7 +90,7 @@ class Trainer(BaseTrainer):
         self.valid_metrics.reset()
         with torch.no_grad():
             for batch_idx, (data, target) in enumerate(self.valid_data_loader):
-                print("validation batch_idx: {} ,target: {}, data: {}".format(batch_idx, target, data))
+                # print("validation batch_idx: {} ,target: {}, data: {}".format(batch_idx, target, data))
                 data, target = data.to(self.device), target.to(self.device)
 
                 output = self.model(data)

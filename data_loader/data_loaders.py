@@ -55,7 +55,7 @@ class MnistDataLoader(BaseDataLoader):
 #         return self.data[idx]
 
 class StockDataset(Dataset):
-    def __init__(self, input_torch_matrix, target_torch_matrix, window=10):
+    def __init__(self, input_torch_matrix, target_torch_matrix, window):
         assert(list(input_torch_matrix.shape)[1] == list(target_torch_matrix.shape)[1])
         total_len = list(input_torch_matrix.shape)[1]
 
@@ -77,13 +77,13 @@ class StockDataLoader(BaseDataLoader):
     """
     MNIST data loading demo using BaseDataLoader
     """
-    def __init__(self, data_dir, batch_size, shuffle=False, validation_split=0.0, num_workers=1, training=True):
+    def __init__(self, data_dir, batch_size, input_columns, target_columns, window, shuffle=False, validation_split=0.0, num_workers=1, training=True):
         # the transformer may be needed for transforming later
         self.input_transformer = StandardScaler()
         self.output_transformer = StandardScaler()
 
         # input_columns = ['MA_2_3', 'EMA_2_3', "ROC_1"]
-        input_columns = ["SMA_2_3", "EMA_2_3"]
+        # input_columns = ["SMA_2_3", "EMA_2_3"]
         # input_columns = ["MA_2_3", "EMA_2_3",
         #                  "AAPL","AMZN","GE","JNJ","JPM","MSFT","WFC","XOM",
         #                  "AUD=X","CAD=X","CHF=X","CNY=X","EUR=X","GBP=X","JPY=X","NZD=X","usd index",
@@ -91,7 +91,7 @@ class StockDataLoader(BaseDataLoader):
         # input_columns = ["ROC_1"]
         # target_columns = ["ROC_1"]
 
-        target_columns = ["FSMA_10","FEMA_10"]
+        # target_columns = ["FSMA_10","FEMA_10"]
 
         # call the data preprocessor in here - saved to spy_processed.csv
         extract_features(features_col=input_columns + target_columns,economic=False)
@@ -99,7 +99,7 @@ class StockDataLoader(BaseDataLoader):
 
         input_torch_matrix = self.normalization(data_dir, input_columns, self.input_transformer, "input", normalization=True)
         target_torch_matrix = self.normalization(data_dir, target_columns, self.output_transformer, "target", normalization=True)
-        self.dataset = StockDataset(input_torch_matrix, target_torch_matrix)
+        self.dataset = StockDataset(input_torch_matrix, target_torch_matrix,window)
 
         super().__init__(self.dataset, batch_size, shuffle, validation_split, num_workers)
 

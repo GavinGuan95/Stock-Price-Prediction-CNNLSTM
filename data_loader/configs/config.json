@@ -1,27 +1,32 @@
 {
     "name": "Stock_CNN_LSTM",
     "n_gpu": 1,
-
     "arch": {
         "type": "CNNLSTMModel",
         "args": {}
     },
     "data_loader": {
         "type": "StockDataLoader",
-        "args":{
+        "args": {
             "data_dir": "./data_loader/processed_data/spy_processed.csv",
             "batch_size": 64,
             "shuffle": false,
             "validation_split": 0.3,
             "num_workers": 1,
-            "input_columns": ["SMA_2_3", "EMA_2_3"],
-            "target_columns": ["FSMA_10","FEMA_10"],
-            "window":10
+            "input_columns": [
+                "SMA_2_3",
+                "EMA_2_3"
+            ],
+            "target_columns": [
+                "FSMA_10",
+                "FEMA_10"
+            ],
+            "window": 10
         }
     },
     "optimizer": {
         "type": "Adam",
-        "args":{
+        "args": {
             "lr": 0.001,
             "weight_decay": 0,
             "amsgrad": true
@@ -40,21 +45,16 @@
         }
     },
     "trainer": {
-        "epochs": 2,
-
+        "epochs": 3,
         "save_dir": "saved/",
         "save_period": 1,
         "verbosity": 2,
-
         "monitor": "min val_loss",
         "early_stop": 10,
-
         "tensorboard": true
     },
-
-     "results": {
-        "accuracy": 0,
-
-        "f-1 score": 0
+    "results": {
+        "accuracy": 0.6012701955782312,
+        "f-1 score": 0.7400987056466867
     }
 }
