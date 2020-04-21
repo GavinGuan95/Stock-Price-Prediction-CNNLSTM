@@ -57,8 +57,8 @@ def extract_features(fname, start=None, end=None, index="Date", economic=True):
     df = ti.exponential_moving_average(df,2,3)
     df = ti.moving_average(df,2,3)
     df = ti.rate_of_change(df,1)
-    df = ti.future_moving_average(df, 2)
-    df = ti.future_exponential_moving_average(df, 2)
+    df = ti.future_moving_average(df, 10)
+    df = ti.future_exponential_moving_average(df, 10)
     # df = ti.exponential_moving_average(df,20)
 
     # # call the economic functions in here
@@ -68,7 +68,7 @@ def extract_features(fname, start=None, end=None, index="Date", economic=True):
     # save the modified excel file
     processed_file_name = os.path.basename(fname).split(".")
     new_file_name = processed_file_name[0] + "_processed" + "." + processed_file_name[1]
-    df.to_csv(os.path.join("processed_data", new_file_name))
+    df.to_csv(os.path.join("./processed_data", new_file_name))
 
 
 def append_indices(df):
@@ -107,5 +107,5 @@ if __name__ == "__main__":
     # extract_features(fname, index="Unnamed: 0", economic=False)
 
     # fname = os.path.join("original_data/SPY.csv")
-    fname = os.path.join("original_data/SPY_sequential_fake.csv")
+    fname = os.path.join("original_data/indices/TSLA.csv")
     extract_features(fname, economic=False)

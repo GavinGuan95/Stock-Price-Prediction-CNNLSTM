@@ -3,7 +3,7 @@ import torch
 from torchvision.utils import make_grid
 from base import BaseTrainer
 from utils import inf_loop, MetricTracker
-
+from trader import Trader
 
 class Trainer(BaseTrainer):
     """
@@ -29,6 +29,7 @@ class Trainer(BaseTrainer):
         # TODO [Gavin]: tensorboard visualization commented out
         self.train_metrics = MetricTracker('loss', *[m.__name__ for m in self.metric_ftns])
         self.valid_metrics = MetricTracker('loss', *[m.__name__ for m in self.metric_ftns])
+        self.trader = Trader(self.config, self.valid_data_loader)
         # self.train_metrics = MetricTracker('loss', *[m.__name__ for m in self.metric_ftns], writer=self.writer)
         # self.valid_metrics = MetricTracker('loss', *[m.__name__ for m in self.metric_ftns], writer=self.writer)
 
@@ -87,9 +88,12 @@ class Trainer(BaseTrainer):
         """
         self.model.eval()
         self.valid_metrics.reset()
+
+        all_validation_output = []
+        print("starting _valid_epoch")
         with torch.no_grad():
             for batch_idx, (data, target) in enumerate(self.valid_data_loader):
-                print("validation batch_idx: {} ,target: {}, data: {}".format(batch_idx, target, data))
+                # print("validation batch_idx: {} ,target: {}, data: {}".format(batch_idx, target, data))
                 data, target = data.to(self.device), target.to(self.device)
 
                 output = self.model(data)
@@ -101,7 +105,8 @@ class Trainer(BaseTrainer):
                     self.valid_metrics.update(met.__name__, met(output, target))
                 # TODO [Gavin]: tensorboard visualization commented out
                 # self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
-
+                all_validation_output.append(output)
+        self.trader.calc_return(all_validation_output)
         # TODO [Gavin]: tensorboard visualization commented out
         # add histogram of model parameters to the tensorboard
         # for name, p in self.model.named_parameters():

@@ -70,6 +70,7 @@ class StockDataset(Dataset):
         return len(self.data)
 
     def __getitem__(self, idx):
+        # print("getitem: {}".format(self.data[idx]))
         return self.data[idx]
 
 class StockDataLoader(BaseDataLoader):
@@ -88,10 +89,10 @@ class StockDataLoader(BaseDataLoader):
         #                  "AUD=X","CAD=X","CHF=X","CNY=X","EUR=X","GBP=X","JPY=X","NZD=X","usd index",
         #                  "^DJI","SS","^FCHI","^FTSE","^GDAXI","^GSPC","^HSI","^IXIC","^NYA","^RUT"]
         # input_columns = ["ROC_1"]
-        # target_columns = ["ROC_1"]
-        target_columns = ["f_MA_10","f_EMA_10"]
+        # target_columns = ["Close"]
+        # target_columns = ["f_MA_10","f_EMA_10"]
         # input_columns = ['Close', 'Adj Close', 'ROC_1']
-        # target_columns = ['ROC_1']
+        target_columns = ['ROC_1']
         input_torch_matrix = self.normalization(data_dir, input_columns, self.input_transformer, "input", normalization=True)
         target_torch_matrix = self.normalization(data_dir, target_columns, self.output_transformer, "target", normalization=True)
         self.dataset = StockDataset(input_torch_matrix, target_torch_matrix)
@@ -112,7 +113,8 @@ class StockDataLoader(BaseDataLoader):
         # np_matrix_original = self.transformer.inverse_transform(np_matrix_normalized)
 
         # save the mean and variance to file
-        np.savez(tag+"_norm_para", mean=transformer.mean_, std=np.sqrt(transformer.var_))
+        if normalization:
+            np.savez(tag+"_norm_para", mean=transformer.mean_, std=np.sqrt(transformer.var_))
 
         torch_matrix = torch.tensor(np_matrix_normalized, dtype=torch.float).t()
         return torch_matrix

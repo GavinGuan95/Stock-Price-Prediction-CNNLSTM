@@ -35,6 +35,8 @@ class CNNLSTMModel(BaseModel):
         ########################
 
         #### Architecture Dependent ####
+        self.use_conv = True
+
         # convolution
         self.conv_channels = [20, 20, 20]
         self.dilation = [1, 1, 1]
@@ -45,53 +47,37 @@ class CNNLSTMModel(BaseModel):
         self.conv_channels.insert(0, self.input_dim)
         self.conv_channels = list(zip(self.conv_channels, self.conv_channels[1:])) # convert conv_channels into a list of tuples for easier use
 
-        # rnn
-        self.rnn1_input = self.conv_channels[-1][-1]
-        self.rnn1_hidden = 20
-        self.rnn1_num_layers = 2
+        # lstm
+        if self.use_conv:
+            self.lstm1_input = self.conv_channels[-1][-1]
+        else:
+            self.lstm1_input = input_dim
+        self.lstm1_hidden = 20
+        self.lstm1_num_layers = 3
+        self.lstm1_dropout = 0.1
         ################################
 
         self.convs = nn.ModuleList([nn.Conv1d(in_channels=in_c, out_channels=out_c, dilation=dilation, kernel_size=k_size)
                                     for (in_c, out_c), dilation, k_size in zip(self.conv_channels, self.dilation, self.kernel_sizes)])
-        self.rnn1 = nn.LSTM(input_size=self.rnn1_input, hidden_size=self.rnn1_hidden, num_layers=self.rnn1_num_layers)
-        self.fc = nn.Linear(self.rnn1_hidden, self.output_dim)
+        self.lstm1 = nn.LSTM(input_size=self.lstm1_input, hidden_size=self.lstm1_hidden, num_layers=self.lstm1_num_layers, dropout=self.lstm1_dropout)
+        self.fc = nn.Linear(self.lstm1_hidden, self.output_dim)
 
-        # figure out how to use LSTM later
-        # self.lstm1 = nn.LSTM(input_size=1, hidden_size=3, num_layers=2)
-        # self.h0 = torch.zeros(2, 1, 3)
-        # self.c0 = torch.zeros(2, 1, 3)
 
     def forward(self, x):
         # print("input x.shape: {}".format(x.shape))
         # if x.dim() == 2: # currently only works if x is single series input (can be batched)
         #     x = x.view(x.shape[0], 1, x.shape[1]) # batch, channel, sequence_length
         # print("after view x.shape: {}".format(x.shape))
-        for conv in self.convs:
-            x = F.relu(conv(x))
+        if self.use_conv:
+            for conv in self.convs:
+                x = F.relu(conv(x))
             # print("after conv x.shape: {}".format(x.shape))
-        x = x.permute(2, 0, 1) # RNN expects seq_len, batch, channel
-        x, _ = self.rnn1(x) # RNN outputs seq_len, batch, channel
-        # print("after rnn x.shape: {}".format(x.shape))
+
+        x = x.permute(2, 0, 1) # LSTM expects seq_len, batch, channel
+        x, _ = self.lstm1(x) # LSTM outputs seq_len, batch, channel
+        # print("after lstm x.shape: {}".format(x.shape))
         x = self.fc(x[-1, :, :]) # only use the output of the last time step to make our prediction
+
         # print("after fc x.shape: {}".format(x.shape))
         return x
 
-if __name__ == "__main__":
-    # quick tester
-    conv1 = nn.Conv1d(1, 1, kernel_size=3)
-    rnn1 = nn.RNN(1,3,1)
-    fc = nn.Linear(3, 1)
-    t = torch.tensor([1,2,3,4,5,6,7,8,9,10], dtype=torch.float)
-    t = t.view(1, 1, -1)
-    o = conv1(t)
-    print(o)
-    print(o.shape)
-    o = o.view(1, -1, 1)
-    o2, hidden = rnn1(o)
-    print(o2)
-    print(o2.shape)
-    print(hidden)
-    print(hidden.shape)
-    o3 = fc(o2[-1,-1])
-    print(o3)
-    print(o3.shape)

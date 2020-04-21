@@ -9,14 +9,18 @@ csv_root = "../data_loader/original_data/indices"
 if not os.path.exists(csv_root):
     os.mkdir(csv_root)
 
-index_list = ["SPY","DJI","^IXIC","^GSPC","^NYA",
-               "^RUT","^HSI","000001.SS","^FCHI","^FTSE",
-               "^GDAXI"]
+# index_list = ["SPY","DJI","^IXIC","^GSPC","^NYA",
+#                "^RUT","^HSI","000001.SS","^FCHI","^FTSE",
+#                "^GDAXI"]
 
-company_list = ["AAPL","AMZN","GE","JNJ","JPM","MSFT","WFC","XOM"]
+index_list = []
 
-forex_list = ["JPY=X","CNY=X","AUD=X","CAD=X","CHF=X","EUR=X","GBP=X","NZD=X"]
+# company_list = ["AAPL","AMZN","GE","JNJ","JPM","MSFT","WFC","XOM"]
+company_list = ["TSLA"]
 
+
+# forex_list = ["JPY=X","CNY=X","AUD=X","CAD=X","CHF=X","EUR=X","GBP=X","NZD=X"]
+forex_list = []
 ticker_list = index_list + forex_list + company_list
 
 start_date = '2000-01-01'
