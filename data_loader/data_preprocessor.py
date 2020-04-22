@@ -88,7 +88,7 @@ def extract_features(fname_in=os.path.join("data_loader/original_data/SPY.csv"),
         if s[0] == "wr":
             df = ti.william_r(df, int(s[1]))
         if s[0] == "stocha":
-            df = ti.stocha_osc(df, int(s[1]))
+            df = ti.stocha_osc(df)
         if s[0] == "acc":
             df = ti.acc_dist(df)
 

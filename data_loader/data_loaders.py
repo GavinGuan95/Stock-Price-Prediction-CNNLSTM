@@ -12,6 +12,7 @@ import torch
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
+import copy
 
 class MnistDataLoader(BaseDataLoader):
     """
@@ -91,17 +92,43 @@ class StockDataLoader(BaseDataLoader):
         # input_columns = ["ROC_1"]
         # target_columns = ["ROC_1"]
 
-        # target_columns = ["FSMA_10","FEMA_10"]
-
         # call the data preprocessor in here - saved to spy_processed.csv
         extract_features(features_col=input_columns + target_columns,economic=False)
         # saved the input and output columns to
+
+        # change some of the columns if a technical indicator function returns more than one value
+        input_columns = self.rewrite_cols(input_columns)
+        target_columns = self.rewrite_cols(target_columns)
 
         input_torch_matrix = self.normalization(data_dir, input_columns, self.input_transformer, "input", normalization=True)
         target_torch_matrix = self.normalization(data_dir, target_columns, self.output_transformer, "target", normalization=True)
         self.dataset = StockDataset(input_torch_matrix, target_torch_matrix,window)
 
         super().__init__(self.dataset, batch_size, shuffle, validation_split, num_workers)
+
+
+
+    def rewrite_cols(self,cols):
+
+        new_col = copy.copy(cols)
+
+        for feature in cols:
+            s = feature.lower().split("_")
+
+            if s[0] == "bb":
+                new_col.remove(feature)
+                new_col = new_col + ["ub_" + str(s[1]), "mb_" + str(s[1]), "lb_" + str(s[1])]
+
+            if s[0] == "macd":
+                new_col.remove(feature)
+                new_col = new_col + ["macd", "macdsignal", "macdhist"]
+
+            if s[0] == "stocha":
+                new_col.remove(feature)
+                new_col = new_col + ["k%", "d%"]
+
+        return new_col
+
 
     def normalization(self, csv_file, columns, transformer, tag, normalization=True):
         df = pd.read_csv(csv_file).dropna()

@@ -157,7 +157,7 @@ def relative_strength_index(df, n):
     :param n:
     :return: pandas.DataFrame
     """
-    RSI = pd.Series(ta.RSI(df['Close'],n),name = 'RSI'+str(n))
+    RSI = pd.Series(ta.RSI(df['Close'],n),name = 'RSI_'+str(n))
 
     df = df.join(RSI)
 
@@ -185,12 +185,12 @@ def william_r(df,n):
     where the last closing price is relative to the highest and lowest prices of a given time period.
     """
     # real = WILLR(high, low, close, timeperiod=14)
-    w_r = pd.Series(ta.WILLR(df['High'],df['Low'],df['Close'],timeperiod=n),name = "william_r_%" + str(n))
+    w_r = pd.Series(ta.WILLR(df['High'],df['Low'],df['Close'],timeperiod=n),name = "wr_" + str(n))
     df  = df.join(w_r)
     return df
 
 
-def stocha_osc(df,n):
+def stocha_osc(df):
     """
 
     A stochastic oscillator is a momentum indicator comparing a particular closing price of a security
@@ -202,7 +202,7 @@ def stocha_osc(df,n):
     The "fast" stochastic indicator is taken as %D = 3-period moving average of %K.
 
     """
-    slowk,slowd = ta.STOCH(df['High'],df['Low'],df['Close'],fastk_period=n, slowk_period=3, slowk_matype=0, slowd_period=3,slowd_matype=0)
+    slowk,slowd = ta.STOCH(df['High'],df['Low'],df['Close'],fastk_period=5, slowk_period=3, slowk_matype=0, slowd_period=3,slowd_matype=0)
 
     k_line = pd.Series(slowk,name = "k%")
     d_line = pd.Series(slowd,name = "d%")
@@ -216,6 +216,6 @@ def acc_dist(df):
     This value is different from that of Yahoo Finance
     """
 
-    CMFV = pd.Series(ta.AD(df['High'], df['Low'], df['Close'],df['Volume']), name="A/D - Current money flow volume")
+    CMFV = pd.Series(ta.AD(df['High'], df['Low'], df['Close'],df['Volume']), name="acc")
     df = df.join(CMFV)
     return df
