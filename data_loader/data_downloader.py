@@ -13,10 +13,10 @@ if not os.path.exists(csv_root):
 #                "^RUT","^HSI","000001.SS","^FCHI","^FTSE",
 #                "^GDAXI"]
 
-index_list = []
+index_list = ["SPY"]
 
 # company_list = ["AAPL","AMZN","GE","JNJ","JPM","MSFT","WFC","XOM"]
-company_list = ["TSLA"]
+company_list = []
 
 
 # forex_list = ["JPY=X","CNY=X","AUD=X","CAD=X","CHF=X","EUR=X","GBP=X","NZD=X"]
@@ -32,4 +32,5 @@ for ticker in ticker_list:
                      end=end_date,
                      progress=False)
     csv_file_path = os.path.join(csv_root, ticker + ".csv")
+    print("saved file to: {}".format(csv_file_path))
     df.to_csv(csv_file_path)

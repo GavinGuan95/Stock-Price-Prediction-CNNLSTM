@@ -11,6 +11,7 @@ from trainer import Trainer
 import glob
 import json
 import pandas as pd
+import os
 
 # fix random seeds for reproducibility
 SEED = 123
@@ -51,7 +52,7 @@ def main(config,config_f):
 #     save result to JSON
 
     with np.load('results.npz') as result:
-        mse,reg_binary_pred, F_1_score = [result[i] for i in ('mse','regression_binary_pred', 'F_1_score')]
+        mse, reg_binary_pred, F_1_score = [result[i] for i in ('mse_loss','regression_binary_pred', 'F_1_score')]
 
     with open(config_f, "r") as f_object:
         data = json.load(f_object)
@@ -77,7 +78,7 @@ def save_to_excel():
         with open(fname, "r") as f_object:
             data = json.load(f_object)
 
-            name_list.append(fname.split("\\")[1].split(".")[0])
+            name_list.append(os.path.basename(fname))
             batch_size.append(data["data_loader"]["args"]["batch_size"])
             context_win.append(data["data_loader"]["args"]["window"])
             input_columns.append(data["data_loader"]["args"]["input_columns"])
@@ -91,7 +92,7 @@ def save_to_excel():
 
     print(df)
 
-    df.to_excel('data_loader/configs/saved_results.xlsx')
+    df.to_csv('data_loader/configs/saved_results.csv')
 
 if __name__ == '__main__':
 
@@ -118,7 +119,8 @@ if __name__ == '__main__':
             CustomArgs(['--bs', '--batch_size'], type=int, target='data_loader;args;batch_size')
         ]
         config = ConfigParser.from_args(args, ["-c", fname], options)
-        main(config,fname)
+        config.config["config_filename"] = os.path.basename(fname)
+        main(config, fname)
 
     save_to_excel()
 

@@ -71,11 +71,25 @@ class Trainer(BaseTrainer):
                 break
         log = self.train_metrics.result()
 
+        lowest_mse_loss = float("inf")
+        high_reg_sharpe = -float("inf")
+        high_bi_pred = -float("inf")
+        high_f1 = -float("inf")
         if self.do_validation:
             val_log = self._valid_epoch(epoch)
+            self.trader.plot_ret()
+            buy_and_hold_sharpe, regression_sharpe = self.trader.get_sharpe()
+            if regression_sharpe > high_reg_sharpe:
+                high_reg_sharpe = regression_sharpe
             log.update(**{'val_'+k : v for k, v in val_log.items()})
-            np.savez("results.npz", mse = val_log["loss"], regression_binary_pred=val_log["regression_binary_pred"],F_1_score = val_log["f1_score"])
+            if val_log["loss"] < lowest_mse_loss:
+                lowest_mse_loss = val_log["loss"]
+            if val_log["regression_binary_pred"] > high_bi_pred:
+                high_bi_pred = val_log["regression_binary_pred"]
+            if val_log["f1_score"] > high_f1:
+                high_f1 = val_log["f1_score"]
 
+            np.savez("results.npz", mse_loss=lowest_mse_loss, regression_sharpe=high_reg_sharpe, regression_binary_pred=high_bi_pred, F_1_score=high_f1)
         if self.lr_scheduler is not None:
             self.lr_scheduler.step()
         return log
