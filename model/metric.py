@@ -58,11 +58,13 @@ def f1_score(output, target):
 
         # apply the inverse transform in here
         # load the transformation params from the saved file
-        with np.load('target_norm_para.npz') as para:
-            mean, std = [para[i] for i in ('mean', 'std')]
-
-        output_np = (output_np * std) + mean
-        target_np = (target_np * std) + mean
+               # with np.load('target_norm_para.npz') as para:
+        #     mean, std = [para[i] for i in ('mean', 'std')]
+        #
+        # output_np = (output_np * std) + mean
+        # target_np = (target_np * std) + mean
+        output_np = unnormalize(output_np)
+        target_np = unnormalize(target_np)
 
         # calculate the precision, recall and F1-score here
         TP = np.sum(np.sign(output_np) + np.sign(target_np) == 2)
@@ -78,3 +80,34 @@ def f1_score(output, target):
 
     return F_1_score
 
+
+def MAPE(output,target):
+    with torch.no_grad():
+
+        output_np = output.cpu().numpy()
+        target_np = target.cpu().numpy()
+
+        output_np = unnormalize(output_np).flatten()
+        target_np = unnormalize(target_np).flatten()
+
+        N = output_np.shape[0]
+
+        mape = np.sum(np.absolute((output_np-target_np)/target_np))/N
+
+    return mape
+
+
+def theil_U(output,target):
+    with torch.no_grad():
+        output_np = output.cpu().numpy()
+        target_np = target.cpu().numpy()
+
+        output_np = unnormalize(output_np).flatten()
+        target_np = unnormalize(target_np).flatten()
+
+        N = output_np.shape[0]
+
+        numer = (1/N*np.sum((output_np-target_np)**2))**(1/2)
+
+
+    return numer

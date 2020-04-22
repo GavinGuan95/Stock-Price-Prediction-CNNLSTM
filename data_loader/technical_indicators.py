@@ -132,7 +132,7 @@ def average_true_range(df, n):
     return df
 
 
-def bollinger_bands(df, n):
+def bollinger_bands_ub(df, n):
     """
 
     A Bollinger Band® is a technical analysis tool defined by a set of lines plotted two standard deviations (positively and negatively)
@@ -140,12 +140,42 @@ def bollinger_bands(df, n):
     """
     upperband, middleband, lowerband = ta.BBANDS(df['Close'], timeperiod=n, nbdevup=2, nbdevdn=2, matype=0)
 
-    ub = pd.Series(upperband, name='ub_' + str(n))
-    mb = pd.Series(middleband, name='mb_' + str(n))
-    lb = pd.Series(lowerband, name='lb_' + str(n))
+    ub = pd.Series(upperband, name='BB_'+'UB_' + str(n))
+    # mb = pd.Series(middleband, name='mb_' + str(n))
+    # lb = pd.Series(lowerband, name='lb_' + str(n))
 
     df = df.join(ub)
+    # df = df.join(mb)
+    # df = df.join(lb)
+
+    return df
+
+
+def bollinger_bands_mb(df, n):
+    """
+
+    A Bollinger Band® is a technical analysis tool defined by a set of lines plotted two standard deviations (positively and negatively)
+     away from a simple moving average (SMA) of the security's pric
+    """
+    upperband, middleband, lowerband = ta.BBANDS(df['Close'], timeperiod=n, nbdevup=2, nbdevdn=2, matype=0)
+
+    mb = pd.Series(middleband, name='BB_'+'MB_' + str(n))
+
     df = df.join(mb)
+
+    return df
+
+
+def bollinger_bands_lb(df, n):
+    """
+
+    A Bollinger Band® is a technical analysis tool defined by a set of lines plotted two standard deviations (positively and negatively)
+     away from a simple moving average (SMA) of the security's pric
+    """
+    upperband, middleband, lowerband = ta.BBANDS(df['Close'], timeperiod=n, nbdevup=2, nbdevdn=2, matype=0)
+
+    lb = pd.Series(lowerband, name='BB_'+'LB_' + str(n))
+
     df = df.join(lb)
 
     return df
@@ -158,26 +188,51 @@ def relative_strength_index(df, n):
     :param n:
     :return: pandas.DataFrame
     """
-    RSI = pd.Series(ta.RSI(df['Close'],n),name = 'RSI'+str(n))
+    RSI = pd.Series(ta.RSI(df['Close'],n),name = 'RSI_'+str(n))
 
     df = df.join(RSI)
 
     return df
 
 
-def MACD(df):
+def MACD_macd(df):
     """
         The MACD is the difference between a 26-day and 12-day exponential moving average of closing prices.
         A 9-day EMA, called the "signal" line is plotted on top of the MACD to show buy/sell opportunities.
     """
     macd, macdsignal, macdhist = ta.MACD(df['Close'], fastperiod=12, slowperiod=26, signalperiod=9)
 
-    Macd = pd.Series(macd, name='macd')
-    Macdsignal = pd.Series(macdsignal, name='macdsignal')
-    Macdhist = pd.Series(macdhist, name='macdhist')
+    Macd = pd.Series(macd, name="MACD_" + 'MACD')
 
-    df = df.join(Macd).join(Macdsignal).join(Macdhist)
+    df = df.join(Macd)
     return df
+
+
+def MACD_signal(df):
+    """
+        The MACD is the difference between a 26-day and 12-day exponential moving average of closing prices.
+        A 9-day EMA, called the "signal" line is plotted on top of the MACD to show buy/sell opportunities.
+    """
+    macd, macdsignal, macdhist = ta.MACD(df['Close'], fastperiod=12, slowperiod=26, signalperiod=9)
+
+    Macdsignal = pd.Series(macdsignal, name='MACD_' + 'SIGNAL')
+
+    df = df.join(Macdsignal)
+    return df
+
+
+def MACD_hist(df):
+    """
+        The MACD is the difference between a 26-day and 12-day exponential moving average of closing prices.
+        A 9-day EMA, called the "signal" line is plotted on top of the MACD to show buy/sell opportunities.
+    """
+    macd, macdsignal, macdhist = ta.MACD(df['Close'], fastperiod=12, slowperiod=26, signalperiod=9)
+
+    Macdhist = pd.Series(macdhist, name='MACD_' + 'HIST')
+
+    df = df.join(Macdhist)
+    return df
+
 
 
 def william_r(df,n):
@@ -186,12 +241,12 @@ def william_r(df,n):
     where the last closing price is relative to the highest and lowest prices of a given time period.
     """
     # real = WILLR(high, low, close, timeperiod=14)
-    w_r = pd.Series(ta.WILLR(df['High'],df['Low'],df['Close'],timeperiod=n),name = "william_r_%" + str(n))
+    w_r = pd.Series(ta.WILLR(df['High'],df['Low'],df['Close'],timeperiod=n),name = "WR_" + str(n))
     df  = df.join(w_r)
     return df
 
 
-def stocha_osc(df,n):
+def stocha_osc_k(df):
     """
 
     A stochastic oscillator is a momentum indicator comparing a particular closing price of a security
@@ -203,12 +258,32 @@ def stocha_osc(df,n):
     The "fast" stochastic indicator is taken as %D = 3-period moving average of %K.
 
     """
-    slowk,slowd = ta.STOCH(df['High'],df['Low'],df['Close'],fastk_period=n, slowk_period=3, slowk_matype=0, slowd_period=3,slowd_matype=0)
+    slowk,slowd = ta.STOCH(df['High'],df['Low'],df['Close'],fastk_period=5, slowk_period=3, slowk_matype=0, slowd_period=3,slowd_matype=0)
 
-    k_line = pd.Series(slowk,name = "k%")
-    d_line = pd.Series(slowd,name = "d%")
+    k_line = pd.Series(slowk,name = "STOCHA_" + "K")
 
-    return df.join(k_line).join(d_line)
+    return df.join(k_line)
+
+
+
+def stocha_osc_d(df):
+    """
+    A stochastic oscillator is a momentum indicator comparing a particular closing price of a security
+    to a range of its prices over a certain period of time.
+
+    slowk, slowd = STOCH(high, low, close, fastk_period=5, slowk_period=3, slowk_matype=0, slowd_period=3, slowd_matype=0)
+
+    %K is referred to sometimes as the slow stochastic indicator.
+    The "fast" stochastic indicator is taken as %D = 3-period moving average of %K.
+
+    """
+    slowk,slowd = ta.STOCH(df['High'],df['Low'],df['Close'],fastk_period=5, slowk_period=3, slowk_matype=0, slowd_period=3,slowd_matype=0)
+
+    d_line = pd.Series(slowd,name = "STOCHA_" +"D")
+
+    return df.join(d_line)
+
+
 
 def acc_dist(df):
     """
@@ -217,6 +292,6 @@ def acc_dist(df):
     This value is different from that of Yahoo Finance
     """
 
-    CMFV = pd.Series(ta.AD(df['High'], df['Low'], df['Close'],df['Volume']), name="A/D - Current money flow volume")
+    CMFV = pd.Series(ta.AD(df['High'], df['Low'], df['Close'],df['Volume']), name="ACC")
     df = df.join(CMFV)
     return df

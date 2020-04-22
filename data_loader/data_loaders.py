@@ -12,6 +12,7 @@ import torch
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
+import copy
 
 class MnistDataLoader(BaseDataLoader):
     """
@@ -82,9 +83,20 @@ class StockDataLoader(BaseDataLoader):
         self.input_transformer = StandardScaler()
         self.output_transformer = StandardScaler()
 
+        # input_columns = ['MA_2_3', 'EMA_2_3', "ROC_1"]
+        # input_columns = ["SMA_2_3", "EMA_2_3"]
+        # input_columns = ["MA_2_3", "EMA_2_3",
+        #                  "AAPL","AMZN","GE","JNJ","JPM","MSFT","WFC","XOM",
+        #                  "AUD=X","CAD=X","CHF=X","CNY=X","EUR=X","GBP=X","JPY=X","NZD=X","usd index",
+        #                  "^DJI","SS","^FCHI","^FTSE","^GDAXI","^GSPC","^HSI","^IXIC","^NYA","^RUT"]
+        # input_columns = ["ROC_1"]
+        # target_columns = ["ROC_1"]
+
         # call the data preprocessor in here - saved to spy_processed.csv
-        extract_features(features_col=input_columns + target_columns, economic=False)
+        extract_features(features_col=input_columns + target_columns,economic=False)
         # saved the input and output columns to
+
+        # change some of the columns if a technical indicator function returns more than one value
 
         input_torch_matrix = self.normalization(data_dir, input_columns, self.input_transformer, "input", normalization=True)
         target_torch_matrix = self.normalization(data_dir, target_columns, self.output_transformer, "target", normalization=True)
@@ -92,14 +104,14 @@ class StockDataLoader(BaseDataLoader):
 
         super().__init__(self.dataset, batch_size, shuffle, validation_split, num_workers)
 
+
+
     def normalization(self, csv_file, columns, transformer, tag, normalization=True):
         df = pd.read_csv(csv_file).dropna()
         np_array_list = []
         for column in columns:
             np_array_list.append(df[column].to_numpy())
         np_matrix = np.stack(np_array_list, axis=1)
-        if tag == "target":
-            print("target positive rate: {}".format((np_matrix > 0).sum()/np_matrix.size))
         if normalization:
             np_matrix_normalized = transformer.fit_transform(np_matrix)
         else:
