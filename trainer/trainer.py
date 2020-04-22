@@ -78,19 +78,45 @@ class Trainer(BaseTrainer):
 
         if self.do_validation:
             val_log, conf_matrix = self._valid_epoch(epoch)
-            val_log["confusion matrix"] = conf_matrix
+
+            # Have to calcluate F-1 score in here
+            TP = conf_matrix[0][1]
+            TN = conf_matrix[0][0]
+            FP = conf_matrix[1][1]
+            FN = conf_matrix[1][0]
+
+            precision = TP / (TP + FP)
+            recall = TP / (TP + FN)
+            f_1_score = 2 * precision * recall / (precision + recall)
+
+
+
+            val_log['f1_score'] = f_1_score
+            val_log["confusion_matrix"] = conf_matrix
             self.trader.plot_ret()
             buy_and_hold_sharpe, regression_sharpe = self.trader.get_sharpe()
             log.update(**{'val_'+k : v for k, v in val_log.items()})
+
             if os.path.exists("results.npz"):
                 with np.load("results.npz") as result:
-                    mse, sharpe, reg_binary_pred, F_1_score, MAPE = [result[i] for i in ('mse_loss', 'regression_sharpe', 'regression_binary_pred', 'F_1_score','MAPE')]
+                    mse, sharpe, reg_binary_pred, F_1_score, old_precision, old_recall, MAPE = [result[i] for i in ('mse_loss', 'regression_sharpe', 'regression_binary_pred', 'F_1_score','precision','recall','MAPE')]
 
-                np.savez("results.npz", mse_loss=min(mse, val_log["loss"]), regression_sharpe=max(sharpe, regression_sharpe),
-                         regression_binary_pred=max(reg_binary_pred, val_log["regression_binary_pred"]),MAPE = min(MAPE,val_log["MAPE"]),
-                         F_1_score=max(F_1_score, val_log["f1_score"]),conf_mtx = conf_matrix)
+                np.savez("results.npz", mse_loss=min(mse, val_log["loss"]),
+                         regression_sharpe=max(sharpe, regression_sharpe),
+                         regression_binary_pred=max(reg_binary_pred, val_log["regression_binary_pred"]),
+                         MAPE = min(MAPE,val_log["MAPE"]),
+                         F_1_score=max(F_1_score, f_1_score),
+                         precision=max(old_precision, precision),
+                         recall=max(old_recall, recall),
+                         conf_mtx = conf_matrix)
             else:
-                np.savez("results.npz", mse_loss=val_log["loss"], regression_sharpe=regression_sharpe, regression_binary_pred=val_log["regression_binary_pred"], F_1_score=val_log["f1_score"],MAPE = val_log["MAPE"],conf_mtx = conf_matrix)
+                np.savez("results.npz", mse_loss=val_log["loss"],
+                         regression_sharpe=regression_sharpe,
+                         regression_binary_pred=val_log["regression_binary_pred"],
+                         F_1_score=f_1_score,
+                         precision = precision,
+                         recall = recall,
+                         MAPE = val_log["MAPE"],conf_mtx = conf_matrix)
         if self.lr_scheduler is not None:
             self.lr_scheduler.step()
         return log

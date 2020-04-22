@@ -52,7 +52,7 @@ def main(config,config_f):
 #     save result to JSON
 
     with np.load('results.npz') as result:
-        mse, sharpe, reg_binary_pred, F_1_score, MAPE, conf_mtx = [result[i] for i in ('mse_loss', 'regression_sharpe', 'regression_binary_pred', 'F_1_score', 'MAPE','conf_mtx')]
+        mse, sharpe, reg_binary_pred, F_1_score,precision,recall, MAPE, conf_mtx = [result[i] for i in ('mse_loss', 'regression_sharpe', 'regression_binary_pred', 'F_1_score','precision','recall', 'MAPE','conf_mtx')]
 
     if os.path.exists("results.npz"):
         os.remove("results.npz")
@@ -66,6 +66,8 @@ def main(config,config_f):
     data["results"]["f-1 score"] = np.sum(F_1_score)
     data["results"]["mape"] = np.sum(MAPE)
     data["results"]["confusion mtx"] = conf_mtx.tolist()
+    data["results"]["precision"] = np.sum(precision)
+    data["results"]["recall"] = np.sum(recall)
 
     with open(config_f, "w") as f_object:
         json.dump(data, f_object,indent=4)
@@ -79,10 +81,13 @@ def save_to_excel():
     target_columns = []
     regression_binary_pred = []
     F_1_score = []
+    precision=[]
+    recall = []
     mse = []
     sharpe = []
     mape = []
     conf_mtx = []
+
 
     for fname in glob.glob('data_loader/configs/*.json'):
         with open(fname, "r") as f_object:
@@ -95,13 +100,15 @@ def save_to_excel():
             target_columns.append(data["data_loader"]["args"]["target_columns"])
             regression_binary_pred.append(data["results"]["accuracy"])
             F_1_score.append(data["results"]["f-1 score"])
+            precision.append(data["results"]["precision"])
+            recall.append(data["results"]["recall"])
             mse.append(data["results"]["mse"])
             sharpe.append(data["results"]["sharpe"])
             mape.append(data["results"]["mape"])
             conf_mtx.append(np.array_str(np.array(data["results"]["confusion mtx"])))
 
-    df = pd.DataFrame(np.array([name_list,batch_size,context_win,input_columns,target_columns,regression_binary_pred,F_1_score,mse,sharpe,mape,conf_mtx]).T,
-                      columns=["file names","batch size","context window","input columns","target_columns","regression_binary_pred","F_1_score","mse","sharpe","mape","confusion matrix"])
+    df = pd.DataFrame(np.array([name_list,batch_size,context_win,input_columns,target_columns,regression_binary_pred,F_1_score,precision,recall,mse,sharpe,mape,conf_mtx]).T,
+                      columns=["file names","batch size","context window","input columns","target_columns","regression_binary_pred","F_1_score","precision","recall","mse","sharpe","mape","confusion matrix"])
 
     print(df)
 

@@ -30,7 +30,7 @@ class MetricTracker:
     def __init__(self, *keys, writer=None):
         self.writer = writer
         self._data = pd.DataFrame(index=keys, columns=['total', 'counts', 'average'])
-        self.conf_mtx = None
+        self.conf_mtx = np.array([[0,0],[0,0]])
         self.reset()
         
     def reset(self):
@@ -40,12 +40,14 @@ class MetricTracker:
     def update(self, key, value, n=1):
         if self.writer is not None:
             self.writer.add_scalar(key, value)
-        if type(value) is not np.ndarray:
+
+        if key =='confusion_matrix':
+            self.conf_mtx+=value
+        else:
             self._data.total[key] += value * n
             self._data.counts[key] += n
             self._data.average[key] = self._data.total[key] / self._data.counts[key]
-        else:
-            self.conf_mtx = value
+
 
     def avg(self, key):
         return self._data.average[key]
@@ -55,3 +57,4 @@ class MetricTracker:
 
     def result(self):
         return dict(self._data.average)
+

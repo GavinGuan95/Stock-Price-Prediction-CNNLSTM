@@ -72,13 +72,15 @@ def f1_score(output, target):
         FP = np.sum((np.sign(target_np) - np.sign(output_np)) == -2)
         FN = np.sum((np.sign(target_np) - np.sign(output_np)) == 2)
 
-        precision = TP / (TP + FP)
-        recall = TP / (TP + FN)
-        F_1_score = 2 * precision * recall / (precision + recall)
+        # precision = TP / (TP + FP)
+        # recall = TP / (TP + FN)
+        # F_1_score = 2 * precision * recall / (precision + recall)
 
         # np.savez("results.npz", F_1_score=F_1_score)
 
-    return F_1_score
+    # this function is useless now
+
+    return 0
 
 
 def MAPE(output,target):
@@ -87,8 +89,8 @@ def MAPE(output,target):
         output_np = output.cpu().numpy()
         target_np = target.cpu().numpy()
 
-        output_np = unnormalize(output_np).flatten()
-        target_np = unnormalize(target_np).flatten()
+        output_np = unnormalize(output_np)
+        target_np = unnormalize(target_np)
 
         N = output_np.shape[0]
 
