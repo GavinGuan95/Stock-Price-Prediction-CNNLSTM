@@ -52,7 +52,7 @@ def main(config,config_f):
 #     save result to JSON
 
     with np.load('results.npz') as result:
-        mse,reg_binary_pred, F_1_score = [result[i] for i in ('mse','regression_binary_pred', 'F_1_score')]
+        mse, reg_binary_pred, F_1_score = [result[i] for i in ('mse_loss','regression_binary_pred', 'F_1_score')]
 
     with open(config_f, "r") as f_object:
         data = json.load(f_object)

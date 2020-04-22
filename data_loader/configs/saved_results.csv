@@ -1,3 +1,3 @@
-,file names,batch size,context window,input columns,target_columns,mse_loss,regression_binary_pred,F_1_score
-0,config2.json,64,7,"['SMA_2_4', 'EMA_2_3']",['FSMA_10'],0.8069169875234365,0.5189843749999999,0.6029034528953028
-1,config.json,64,10,"['SMA_2_3', 'EMA_2_3']",['FSMA_10'],0.8442153592283527,0.6046981292517007,0.7419937429091702
+,file names,batch size,context window,input columns,target_columns,regression_binary_pred,F_1_score,mse
+0,config2.json,64,7,"['SMA_2_4', 'EMA_2_3']",['FSMA_10'],0.604375,0.743306018561165,0.8008860837047299
+1,config.json,64,10,"['SMA_2_3', 'EMA_2_3']",['FSMA_10'],0.6038477891156463,0.7431158897696707,0.8069942401101192
