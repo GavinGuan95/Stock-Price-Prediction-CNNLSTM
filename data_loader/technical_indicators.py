@@ -185,7 +185,7 @@ def william_r(df,n):
     where the last closing price is relative to the highest and lowest prices of a given time period.
     """
     # real = WILLR(high, low, close, timeperiod=14)
-    w_r = pd.Series(ta.WILLR(df['High'],df['Low'],df['Close'],timeperiod=n),name = "wr_" + str(n))
+    w_r = pd.Series(ta.WILLR(df['High'],df['Low'],df['Close'],timeperiod=n),name = "WR_" + str(n))
     df  = df.join(w_r)
     return df
 
@@ -216,6 +216,6 @@ def acc_dist(df):
     This value is different from that of Yahoo Finance
     """
 
-    CMFV = pd.Series(ta.AD(df['High'], df['Low'], df['Close'],df['Volume']), name="acc")
+    CMFV = pd.Series(ta.AD(df['High'], df['Low'], df['Close'],df['Volume']), name="ACC")
     df = df.join(CMFV)
     return df
