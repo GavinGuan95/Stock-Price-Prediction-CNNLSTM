@@ -89,16 +89,28 @@ def MAPE(output,target):
         output_np = output.cpu().numpy()
         target_np = target.cpu().numpy()
 
-        output_np = unnormalize(output_np)
-        target_np = unnormalize(target_np)
+        # output_np = unnormalize(output_np)
+        # target_np = unnormalize(target_np)
 
-        N = output_np.shape[0]
+        # N = output_np.shape[0]
 
-        mape = np.sum(np.absolute((output_np-target_np)/target_np))/N
+        # mape = np.sum(np.absolute((output_np-target_np)/target_np))/N
 
-    return mape
+    # return the normazlied output and target array
+    return np.concatenate((output_np,target_np),axis=1)
 
 
+
+def roc_auc(output,target):
+    with torch.no_grad():
+        output_np = output.cpu().numpy()
+        target_np = target.cpu().numpy()
+
+        # output_np = unnormalize(output_np)
+        # target_np = unnormalize(target_np)
+
+
+    return np.concatenate((np.sign(output_np), np.sign(target_np)), axis=1)
 
 def confusion_matrix(output,target):
     with torch.no_grad():

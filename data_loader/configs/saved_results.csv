@@ -1,5 +1,5 @@
-,file names,batch size,context window,input columns,target_columns,regression_binary_pred,F_1_score,precision,recall,mse,sharpe,mape,confusion matrix
-0,config1.json,64,20,"['EMA_2_3', 'EMA_2_5', 'EMA_3_5']",['ROC_1'],0.5550744398584906,0.7144670050761422,0.5557749259624877,1.0,0.9302272866480052,0.48730493442362316,621246.034035454,"[[  0 563]
- [  0 450]]"
-1,config2.json,64,20,"['ROC_1', 'ROC_2', 'ROC_5']",['ROC_1'],0.5511681898584906,0.7111959287531807,0.5518262586377097,1.0,0.9331805338151753,0.48730493442362316,3869653.9906380614,"[[  0 559]
- [  0 454]]"
+,file names,batch size,context window,input columns,target_columns,regression_binary_pred,F_1_score,precision,recall,mse,sharpe,mape,confusion matrix,roc_auc score
+0,config1.json,64,20,"['EMA_2_3', 'EMA_2_5', 'EMA_3_5']",['ROC_1'],0.5550744398584906,0.7144670050761422,0.5557749259624877,1.0,0.9302272866480052,0.4917692663706204,1.7047556569286773,"[[ 18 543]
+ [ 20 432]]",0.5014924671539709
+1,config2.json,64,20,"['ROC_1', 'ROC_2', 'ROC_5']",['ROC_1'],0.5525501179245284,0.7111959287531807,0.5518262586377097,1.0,0.9328978159464896,0.48730493442362316,2.267059958816634,"[[ 27 533]
+ [ 26 427]]",0.503378590242067

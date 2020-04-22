@@ -37,7 +37,8 @@
         "regression_binary_pred",
         "f1_score",
         "confusion_matrix",
-        "MAPE"
+        "MAPE",
+        "roc_auc"
     ],
     "lr_scheduler": {
         "type": "StepLR",
@@ -47,7 +48,7 @@
         }
     },
     "trainer": {
-        "epochs": 1,
+        "epochs": 5,
         "save_dir": "saved/",
         "save_period": 1,
         "verbosity": 2,
@@ -60,19 +61,20 @@
         "f-1 score": 0.7144670050761422,
         "mse_loss": 0.8442153592283527,
         "mse": 0.9302272866480052,
-        "mape": 621246.034035454,
+        "mape": 1.7047556569286773,
         "confusion mtx": [
             [
-                0,
-                563
+                18,
+                543
             ],
             [
-                0,
-                450
+                20,
+                432
             ]
         ],
-        "sharpe": 0.48730493442362316,
+        "sharpe": 0.4917692663706204,
         "precision": 0.5557749259624877,
-        "recall": 1.0
+        "recall": 1.0,
+        "roc_auc": 0.5014924671539709
     }
 }

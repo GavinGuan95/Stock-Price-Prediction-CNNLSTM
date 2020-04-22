@@ -4,6 +4,7 @@ from torchvision.utils import make_grid
 from base import BaseTrainer
 from utils import inf_loop, MetricTracker
 from trader import Trader
+from sklearn.metrics import roc_auc_score
 import os
 
 class Trainer(BaseTrainer):
@@ -77,7 +78,7 @@ class Trainer(BaseTrainer):
         log = self.train_metrics.result()
 
         if self.do_validation:
-            val_log, conf_matrix = self._valid_epoch(epoch)
+            val_log, conf_matrix, comp_mtx,sign_mtx = self._valid_epoch(epoch)
 
             # Have to calcluate F-1 score in here
             TP = conf_matrix[0][1]
@@ -90,33 +91,57 @@ class Trainer(BaseTrainer):
             f_1_score = 2 * precision * recall / (precision + recall)
 
 
+            # calcualte MAPE in here
+            output_accu = comp_mtx[:,0]
+            target_accu = comp_mtx[:,1]
+            N = output_accu.shape[0]
+            mape = np.sum(np.absolute((output_accu - target_accu) / target_accu)) / N
 
+
+            # calculate roc_auc in here
+            output_sign = sign_mtx[:, 0]
+            target_sign = sign_mtx[:, 1]
+            r_c_score = roc_auc_score(target_sign, output_sign)
+
+            # log the calcuated values
             val_log['f1_score'] = f_1_score
+            val_log['precision'] = precision
+            val_log['recall'] = recall
             val_log["confusion_matrix"] = conf_matrix
+            val_log["MAPE"] = mape
+            val_log["roc_auc"] = r_c_score
+
+
             self.trader.plot_ret()
             buy_and_hold_sharpe, regression_sharpe = self.trader.get_sharpe()
             log.update(**{'val_'+k : v for k, v in val_log.items()})
 
             if os.path.exists("results.npz"):
                 with np.load("results.npz") as result:
-                    mse, sharpe, reg_binary_pred, F_1_score, old_precision, old_recall, MAPE = [result[i] for i in ('mse_loss', 'regression_sharpe', 'regression_binary_pred', 'F_1_score','precision','recall','MAPE')]
+                    mse, sharpe, reg_binary_pred, F_1_score, precision, recall, MAPE,r_c_score = [result[i] for i in ('mse_loss', 'regression_sharpe', 'regression_binary_pred', 'F_1_score','precision','recall','MAPE','roc_auc')]
 
-                np.savez("results.npz", mse_loss=min(mse, val_log["loss"]),
+                np.savez("results.npz",
+                         mse_loss=min(mse, val_log["loss"]),
                          regression_sharpe=max(sharpe, regression_sharpe),
                          regression_binary_pred=max(reg_binary_pred, val_log["regression_binary_pred"]),
                          MAPE = min(MAPE,val_log["MAPE"]),
                          F_1_score=max(F_1_score, f_1_score),
-                         precision=max(old_precision, precision),
-                         recall=max(old_recall, recall),
-                         conf_mtx = conf_matrix)
+                         precision= precision if F_1_score>f_1_score else val_log['precision'],
+                         recall=recall if F_1_score>f_1_score else val_log['recall'],
+                         conf_mtx = conf_matrix if F_1_score>f_1_score else val_log["confusion_matrix"],
+                         roc_auc=max(r_c_score,val_log["roc_auc"]))
             else:
-                np.savez("results.npz", mse_loss=val_log["loss"],
+                np.savez("results.npz",
+                         mse_loss=val_log["loss"],
                          regression_sharpe=regression_sharpe,
                          regression_binary_pred=val_log["regression_binary_pred"],
                          F_1_score=f_1_score,
                          precision = precision,
                          recall = recall,
-                         MAPE = val_log["MAPE"],conf_mtx = conf_matrix)
+                         MAPE = mape,
+                         conf_mtx = conf_matrix,
+                         roc_auc = r_c_score)
+
         if self.lr_scheduler is not None:
             self.lr_scheduler.step()
         return log
@@ -153,7 +178,7 @@ class Trainer(BaseTrainer):
         # add histogram of model parameters to the tensorboard
         # for name, p in self.model.named_parameters():
         #     self.writer.add_histogram(name, p, bins='auto')
-        return self.valid_metrics.result(),self.valid_metrics.get_conf_mtx()
+        return self.valid_metrics.result(),self.valid_metrics.get_conf_mtx(),self.valid_metrics.get_comp_mtx(),self.valid_metrics.get_sign_mtx()
 
     def _progress(self, batch_idx):
         base = '[{}/{} ({:.0f}%)]'
