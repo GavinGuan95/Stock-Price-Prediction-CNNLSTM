@@ -19,7 +19,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
+from sklearn.metrics import f1_score
 import h5py
 
 #load data
@@ -28,7 +28,7 @@ Df=Df.dropna()
 
 #choose target to be the movement of next day price
 target = Df['ROC_1']
-X = Df.drop(['ROC_1', 'Date', 'Volume', 'f_MA_10', 'f_EMA_10'], axis=1)
+X = Df.drop(['ROC_1', 'Date', 'Volume', 'FSMA_10'], axis=1)
 
 # normalize the data
 sc_X = StandardScaler()
@@ -106,14 +106,23 @@ print(rf_predict.get_params)
 rf_predict.fit(x_tr,y_tr)
 rf_pred_tr = rf_predict.predict(x_tr)
 #print train and validation accuracy
-print(accuracy_score(y_tr, rf_pred_tr))
+print("RF next day training accuracy", accuracy_score(y_tr, rf_pred_tr))
 rf_pred_val = rf_predict.predict(x_te)
-print(accuracy_score(y_te, rf_pred_val))
+print("RF next day testing accuracy", accuracy_score(y_te, rf_pred_val))
 
+#print f1 score
+print("the f1 score for next days prediction", f1_score(y_te, rf_pred_val, average='binary'))
+
+#print confusion metrics
+print("confusion matrix for next day prediction, class 0 is decrease and class 1 is increase")
+
+print(confusion_matrix(y_te, rf_pred_val))
+
+# code below is for Rf on the 10 day average trend movement
 
 #choose target to be the average movement of next 10 day price
-target = Df['f_MA_10']
-X = Df.drop(['ROC_1', 'Date', 'Volume', 'f_MA_10', 'f_EMA_10'], axis=1)
+target = Df['FSMA_10']
+X = Df.drop(['ROC_1', 'Date', 'Volume', 'FSMA_10'], axis=1)
 
 # normalize the data
 sc_X = StandardScaler()
@@ -140,12 +149,6 @@ target=pd.DataFrame(output_list)
 target[target <= 0] = 0
 target[target > 0] = 1
 
-# y=target.values.tolist()
-# target=y.ravel()
-# print(X_new)
-#
-# print(target)
-# print(Df)
 
 #split train test to 7:3
 t=.7
@@ -190,6 +193,14 @@ print(rf_predict.get_params)
 rf_predict.fit(x_tr,y_tr)
 rf_pred_tr = rf_predict.predict(x_tr)
 #print train and validation accuracy
-print(accuracy_score(y_tr, rf_pred_tr))
+print("RF 10 day average training accuracy", accuracy_score(y_tr, rf_pred_tr))
 rf_pred_val = rf_predict.predict(x_te)
-print(accuracy_score(y_te, rf_pred_val))
+print("RF 10 day average testing accuracy", accuracy_score(y_te, rf_pred_val))
+
+#print f1 score
+print("the f1 score for RF 10 days average is", f1_score(y_te, rf_pred_val, average='binary'))
+
+#print confusion metrics
+print("confusion matrix for 10 day average, class 0 is decrease and class 1 is increase")
+
+print(confusion_matrix(y_te, rf_pred_val))

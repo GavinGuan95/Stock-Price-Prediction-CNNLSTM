@@ -1,0 +1,3 @@
+,file names,batch size,context window,input columns,target_columns,regression_binary_pred,F_1_score,mse,sharpe
+0,config2.json,64,20,"['EMA_2_3', 'EMA_2_5', 'EMA_3_5', 'ATR_3', 'BB_UB_3', 'BB_MB_3', 'BB_LB_3', 'RSI_3', 'MACD_MACD', 'WR_3', 'STOCHA_K', 'STOCHA_D', 'ACC']",['ROC_1'],0.5540364583333334,0.7112635622370621,0.9913406521081924,0.5118801868138753
+1,config1.json,64,20,"['EMA_2_3', 'EMA_2_5', 'EMA_3_5']",['ROC_1'],0.5550744398584906,0.7123075689192925,0.9259847793728113,0.506488991540072

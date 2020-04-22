@@ -14,9 +14,19 @@
             "validation_split": 0.2,
             "num_workers": 1,
             "input_columns": [
-                "ROC_1",
-                "ROC_2",
-                "ROC_3"
+                "EMA_2_3",
+                "EMA_2_5",
+                "EMA_3_5",
+                "ATR_3",
+                "BB_UB_3",
+                "BB_MB_3",
+                "BB_LB_3",
+                "RSI_3",
+                "MACD_MACD",
+                "WR_3",
+                "STOCHA_K",
+                "STOCHA_D",
+                "ACC"
             ],
             "target_columns": [
                 "ROC_1"
@@ -54,10 +64,10 @@
         "tensorboard": true
     },
     "results": {
-        "accuracy": 0.556640625,
-        "f-1 score": 0.7103124887800645,
+        "accuracy": 0.5540364583333334,
+        "f-1 score": 0.7112635622370621,
         "mse_loss": 0.8442153592283527,
-        "mse": 0.9034901782870293,
-        "sharpe": 0.5688568547840407
+        "mse": 0.9913406521081924,
+        "sharpe": 0.5118801868138753
     }
 }
