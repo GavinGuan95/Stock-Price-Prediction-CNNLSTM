@@ -52,16 +52,16 @@ def main(config,config_f):
 #     save result to JSON
 
     with np.load('results.npz') as result:
-        mse_loss, reg_binary_pred, F_1_score = [result[i] for i in ('mse_loss', 'regression_binary_pred', 'F_1_score')]
+        mse,reg_binary_pred, F_1_score = [result[i] for i in ('mse','regression_binary_pred', 'F_1_score')]
 
     with open(config_f, "r") as f_object:
         data = json.load(f_object)
 
-    data["results"]["mse_loss"] = np.sum(mse_loss)
+    data["results"]["mse"] = np.sum(mse)
     data["results"]["accuracy"] = np.sum(reg_binary_pred)
     data["results"]["f-1 score"] = np.sum(F_1_score)
     with open(config_f, "w") as f_object:
-        json.dump(data, f_object, indent=4)
+        json.dump(data, f_object,indent=4)
 
 
 def save_to_excel():
@@ -70,9 +70,9 @@ def save_to_excel():
     context_win = []
     input_columns = []
     target_columns = []
-    mse_loss = []
     regression_binary_pred = []
     F_1_score = []
+    mse = []
 
     for fname in glob.glob('data_loader/configs/*.json'):
         with open(fname, "r") as f_object:
@@ -83,12 +83,12 @@ def save_to_excel():
             context_win.append(data["data_loader"]["args"]["window"])
             input_columns.append(data["data_loader"]["args"]["input_columns"])
             target_columns.append(data["data_loader"]["args"]["target_columns"])
-            mse_loss.append(data["results"]["mse_loss"])
             regression_binary_pred.append(data["results"]["accuracy"])
             F_1_score.append(data["results"]["f-1 score"])
+            mse.append(data["results"]["mse"])
 
-    df = pd.DataFrame(np.array([name_list,batch_size,context_win,input_columns,target_columns,mse_loss,regression_binary_pred,F_1_score]).T,
-                      columns=["file names","batch size","context window","input columns","target_columns","mse_loss","regression_binary_pred","F_1_score"])
+    df = pd.DataFrame(np.array([name_list,batch_size,context_win,input_columns,target_columns,regression_binary_pred,F_1_score,mse]).T,
+                      columns=["file names","batch size","context window","input columns","target_columns","regression_binary_pred","F_1_score","mse"])
 
     print(df)
 
