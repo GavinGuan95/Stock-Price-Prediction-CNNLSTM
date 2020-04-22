@@ -109,7 +109,7 @@ def append_indices(df):
     for fname in glob.glob('data_loader/original_data/indices/*.csv'):
         print(fname)
         df_i = pd.read_csv(fname)
-        df = match(df, df_i, fname.split("\\")[1].split(".")[0])
+        df = match(df, df_i, os.path.basename(fname))
         print(df_i.shape,df.shape)
     return df
 
@@ -139,6 +139,6 @@ if __name__ == "__main__":
     # fname = "/home/guanyush/Pictures/CSC2516/CNNLSTM/data_loader/processed_data/kibot.csv"
     # extract_features(fname, index="Unnamed: 0", economic=False)
 
-    fname = os.path.join("original_data/SPY.csv")
+    fname = os.path.join("original_data/indices/SPY.csv")
     # fname = os.path.join("original_data/SPY_sequential_fake.csv")
     extract_features()

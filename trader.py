@@ -5,6 +5,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from matplotlib.pyplot import figure
+import os
+
+def sharpe(returns, rf=0.0, days=252):
+    volatility = returns.std() * np.sqrt(days)
+    sharpe_ratio = (returns.mean() - rf) / volatility
+    return sharpe_ratio
 
 class Trader:
     tot_earned = 0.0
@@ -12,6 +18,7 @@ class Trader:
 
     def __init__(self, config, data_loader):
         self.original_csv_path = config['data_loader']['args']['data_dir']
+        self.config_filename = os.path.splitext(config.config["config_filename"])[0]
         self.input_window = data_loader.dataset[0][0].shape[0]  # if there are other ways to find the input window, that is good too
 
         self.original_df = pd.read_csv(self.original_csv_path).dropna()
@@ -21,6 +28,10 @@ class Trader:
 
         self.trade_period_nxt_day = data_loader.sampler.data_source + self.input_window
         self.nxt_day_value = self.original_df["Close"].to_numpy()[self.trade_period_nxt_day]
+
+        self.trade_period_5_day = data_loader.sampler.data_source + self.input_window + 4
+        self.five_day_value = self.original_df["Close"].to_numpy()[self.trade_period_5_day]
+
         self.date_indices = self.original_df["Date"][self.trade_period_nxt_day]
 
     def calc_return(self, torch_output_list):
@@ -35,9 +46,14 @@ class Trader:
         assert(len(self.cur_day_value) == len(self.nxt_day_value) == len(self.decision_output))
         self.buy_and_hold_return, self.buy_and_hold_ret_list = self.buy_and_hold()
         reg_return, reg_ret_list = self.trade_with_regression_result()
+        # reg_return, reg_ret_list = self.trade_with_regression_result_5day()
 
     def plot_ret(self):
-        ReturnPlotter(self.date_indices, [self.buy_and_hold_ret_list, self.reg_ret_list], ["Buy&Hold", "CNNLSTM"], title="Comparison of Return", path="./return_plot.png")
+        ReturnPlotter(self.date_indices, [self.buy_and_hold_ret_list, self.reg_ret_list], ["Buy&Hold", "CNNLSTM"],
+                      title="Comparison of Return", path="./data_loader/configs/return_plot_{}.png".format(self.config_filename))
+
+    def get_sharpe(self):
+        return sharpe(np.array(self.buy_and_hold_ret_list)), sharpe(np.array(self.reg_ret_list))
 
     def buy_and_hold(self):
         ret_list = []
@@ -64,6 +80,27 @@ class Trader:
             # print("total_earned: {}, decision: {}, original_decision: {}, actual: {}, earned_pct: {}".format(total_earned, bounded_decision, decision, actual_pct_change, earned_pct))
         total_earned = total_earned - 1.0
         print("trade_with_regression_result return: {}".format(total_earned))
+        if total_earned > self.tot_earned:
+            self.tot_earned = total_earned
+            self.reg_ret_list = ret_list
+        return total_earned, ret_list
+
+    def trade_with_regression_result_5day(self, short=False):
+        total_earned = 1.0
+        scaling = 100.0
+        ret_list = []
+        for cur_day, five_day, decision in zip(self.cur_day_value, self.five_day_value, self.decision_output):
+            actual_pct_change = (five_day - cur_day)/cur_day
+            if short:
+                bounded_decision = max(-1.0, min(1.0, decision * scaling)) / 5.0
+            else:
+                bounded_decision = max(0.0, min(1.0, decision * scaling)) / 5.0
+            earned_pct = bounded_decision * actual_pct_change
+            total_earned = total_earned * (1.0 + earned_pct)
+            ret_list.append(total_earned)
+            # print("total_earned: {}, decision: {}, original_decision: {}, actual: {}, earned_pct: {}".format(total_earned, bounded_decision, decision, actual_pct_change, earned_pct))
+        total_earned = total_earned - 1.0
+        print("trade_with_regression_result_5day return: {}".format(total_earned))
         if total_earned > self.tot_earned:
             self.tot_earned = total_earned
             self.reg_ret_list = ret_list

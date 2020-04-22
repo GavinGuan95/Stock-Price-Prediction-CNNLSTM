@@ -18,8 +18,7 @@
                 "EMA_2_3"
             ],
             "target_columns": [
-                "FSMA_5",
-                "FEMA_10"
+                "FSMA_10"
             ],
             "window": 7
         }
@@ -45,16 +44,17 @@
         }
     },
     "trainer": {
-        "epochs": 3,
+        "epochs": 15,
         "save_dir": "saved/",
         "save_period": 1,
         "verbosity": 2,
         "monitor": "min val_loss",
-        "early_stop": 10,
+        "early_stop": 15,
         "tensorboard": true
     },
     "results": {
-        "accuracy": 0.5675390625,
-        "f-1 score": 0.6947237902965893
+        "accuracy": 0.5189843749999999,
+        "f-1 score": 0.6029034528953028,
+        "mse_loss": 0.8069169875234365
     }
 }
