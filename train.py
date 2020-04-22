@@ -52,12 +52,16 @@ def main(config,config_f):
 #     save result to JSON
 
     with np.load('results.npz') as result:
-        mse, reg_binary_pred, F_1_score = [result[i] for i in ('mse_loss','regression_binary_pred', 'F_1_score')]
+        mse, sharpe, reg_binary_pred, F_1_score = [result[i] for i in ('mse_loss', 'regression_sharpe', 'regression_binary_pred', 'F_1_score')]
+
+    if os.path.exists("results.npz"):
+        os.remove("results.npz")
 
     with open(config_f, "r") as f_object:
         data = json.load(f_object)
 
     data["results"]["mse"] = np.sum(mse)
+    data["results"]["sharpe"] = np.sum(sharpe)
     data["results"]["accuracy"] = np.sum(reg_binary_pred)
     data["results"]["f-1 score"] = np.sum(F_1_score)
     with open(config_f, "w") as f_object:
@@ -73,6 +77,7 @@ def save_to_excel():
     regression_binary_pred = []
     F_1_score = []
     mse = []
+    sharpe = []
 
     for fname in glob.glob('data_loader/configs/*.json'):
         with open(fname, "r") as f_object:
@@ -86,9 +91,10 @@ def save_to_excel():
             regression_binary_pred.append(data["results"]["accuracy"])
             F_1_score.append(data["results"]["f-1 score"])
             mse.append(data["results"]["mse"])
+            sharpe.append(data["results"]["sharpe"])
 
-    df = pd.DataFrame(np.array([name_list,batch_size,context_win,input_columns,target_columns,regression_binary_pred,F_1_score,mse]).T,
-                      columns=["file names","batch size","context window","input columns","target_columns","regression_binary_pred","F_1_score","mse"])
+    df = pd.DataFrame(np.array([name_list,batch_size,context_win,input_columns,target_columns,regression_binary_pred,F_1_score,mse,sharpe]).T,
+                      columns=["file names","batch size","context window","input columns","target_columns","regression_binary_pred","F_1_score","mse","sharpe"])
 
     print(df)
 
@@ -99,7 +105,8 @@ if __name__ == '__main__':
     # write your for loop in here
     # config = ConfigParser.from_args(args,["-c","config.json"],options)
     # main(config)
-
+    if os.path.exists("results.npz"):
+        os.remove("results.npz")
 
 
     for fname in glob.glob('data_loader/configs/*.json'):

@@ -66,7 +66,7 @@ def extract_features(fname_in=os.path.join("data_loader/original_data/SPY.csv"),
         s = feature.lower().split("_")
 
         if s[0] == "sma":
-            df = ti.moving_average(df,int(s[1]),int(s[2]))
+            df = ti.moving_average(df, int(s[1]), int(s[2]))
         if s[0] == "ema":
             df = ti.exponential_moving_average(df, int(s[1]), int(s[2]))
         if s[0] == "fsma":

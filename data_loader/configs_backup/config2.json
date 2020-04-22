@@ -11,12 +11,17 @@
             "data_dir": "./data_loader/processed_data/spy_processed.csv",
             "batch_size": 64,
             "shuffle": false,
-            "validation_split": 0.2,
+            "validation_split": 0.1,
             "num_workers": 1,
             "input_columns": [
-                "ROC_1",
-                "ROC_2",
-                "ROC_3"
+                "SMA_2_3",
+                "EMA_2_3",
+                "SMA_2_5",
+                "EMA_2_5",
+                "SMA_2_10",
+                "EMA_2_10",
+                "SMA_5_10",
+                "EMA_5_10"
             ],
             "target_columns": [
                 "ROC_1"
@@ -54,10 +59,10 @@
         "tensorboard": true
     },
     "results": {
-        "accuracy": 0.556640625,
-        "f-1 score": 0.7103124887800645,
-        "mse_loss": 0.8442153592283527,
-        "mse": 0.9034901782870293,
-        "sharpe": 0.5688568547840407
+        "accuracy": 0.5627020474137931,
+        "f-1 score": 0.7126685809252568,
+        "mse_loss": 0.8069169875234365,
+        "mse": 1.4777167458087206,
+        "sharpe": 0.9354415389322815
     }
 }
