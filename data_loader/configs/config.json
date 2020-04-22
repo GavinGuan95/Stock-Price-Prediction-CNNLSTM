@@ -18,9 +18,9 @@
                 "EMA_2_3",
                 "BB_UB_5",
                 "BB_MB_5",
-                "BB_LB_5",
                 "STOCHA_K",
-                 "STOCHA_D"
+                "STOCHA_D",
+                "WR_3"
 
             ],
             "target_columns": [
