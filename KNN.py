@@ -19,8 +19,9 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
 import h5py
+from sklearn.metrics import f1_score
+from sklearn.neighbors import KNeighborsClassifier
 
 #load data
 Df= pd.read_csv('./data_loader/processed_data/spy_processed.csv')
@@ -28,14 +29,14 @@ Df=Df.dropna()
 
 #choose target to be the movement of next day price
 target = Df['ROC_1']
-X = Df.drop(['ROC_1', 'Date', 'Volume', 'f_MA_10', 'f_EMA_10'], axis=1)
+X = Df.drop(['ROC_1', 'Date', 'Volume', 'FSMA_10'], axis=1)
 
 # normalize the data
 sc_X = StandardScaler()
 X= sc_X.fit_transform(X)
 X_new = pd.DataFrame(data=X)
 # set the context window size
-window_size = 30
+window_size = 10
 
 input_list = []
 output_list = []
@@ -68,14 +69,14 @@ y_te=target.iloc[split:]
 output=np.array(y_tr)
 y_tr=output.ravel()
 
-from sklearn.neighbors import KNeighborsClassifier
+
 
 #set of parameters for random search
-neighbours=[2,5,10,12,15,20,50, 70, 100 ,200]
+neighbours=[2,5,10,12,15,20,40,50,70,100]
 parameters = {'n_neighbors': neighbours}
 
 knn_g = KNeighborsClassifier()
-knn_searched = RandomizedSearchCV(knn_g, parameters, cv = 5, n_iter = 10, verbose=0, n_jobs = -1)
+knn_searched = RandomizedSearchCV(knn_g, parameters, cv = 5, n_iter = 5, verbose=0, n_jobs = -1)
 
 knn_searched.fit(x_tr,y_tr)
 print(knn_searched.best_params_)
@@ -84,9 +85,19 @@ print(knn_predict.get_params)
 knn_predict.fit(x_tr,y_tr)
 knn_pred_tr = knn_predict.predict(x_tr)
 #print train and validation accuracy
-print(accuracy_score(y_tr, knn_pred_tr))
+print("KNN training accuracy for next day", accuracy_score(y_tr, knn_pred_tr))
 knn_pred_val = knn_predict.predict(x_te)
-print(accuracy_score(y_te, knn_pred_val))
+print("KNN testing accuracy for next day",accuracy_score(y_te, knn_pred_val))
+
+#print f1 score
+print("the f1 score for KNN next day prediction is", f1_score(y_te, knn_pred_val, average='binary'))
+
+#print confusion metrics
+print("confusion matrix for next day, class 0 is decrease and class 1 is increase")
+
+print(confusion_matrix(y_te, knn_pred_val))
+
+# the model below predicts the movement for 10 day average trends
 
 
 #load data
@@ -94,8 +105,8 @@ Df= pd.read_csv('./data_loader/processed_data/spy_processed.csv')
 Df=Df.dropna()
 
 #choose target to be the average movement of next 10 day price
-target = Df['f_MA_10']
-X = Df.drop(['ROC_1', 'Date', 'Volume', 'f_MA_10', 'f_EMA_10'], axis=1)
+target = Df['FSMA_10']
+X = Df.drop(['ROC_1', 'Date', 'Volume', 'FSMA_10'], axis=1)
 
 # normalize the data
 sc_X = StandardScaler()
@@ -137,11 +148,11 @@ y_te=target.iloc[split:]
 output=np.array(y_tr)
 y_tr=output.ravel()
 #set of parameters for random search
-neighbours=[2,5,10,12,15,20,50, 70, 100,200]
+neighbours=[2,5,10,12,15,20, 40, 50,70,100]
 parameters = {'n_neighbors': neighbours}
 
 knn_g = KNeighborsClassifier()
-knn_searched = RandomizedSearchCV(knn_g, parameters, cv = 5, n_iter = 10, verbose=0, n_jobs = -1)
+knn_searched = RandomizedSearchCV(knn_g, parameters, cv = 5, n_iter = 5, verbose=0, n_jobs = -1)
 
 knn_searched.fit(x_tr,y_tr)
 print(knn_searched.best_params_)
@@ -150,8 +161,14 @@ print(knn_predict.get_params)
 knn_predict.fit(x_tr,y_tr)
 knn_pred_tr = knn_predict.predict(x_tr)
 #print train and validation accuracy
-print(accuracy_score(y_tr, knn_pred_tr))
+print("KNN training accuracy for 10 day average", accuracy_score(y_tr, knn_pred_tr))
 knn_pred_val = knn_predict.predict(x_te)
-print(accuracy_score(y_te, knn_pred_val))
+print("KNN testing accuracy for 10 day average", accuracy_score(y_te, knn_pred_val))
 
+#print f1 score
+print("the f1 score for KNN 10 days average is", f1_score(y_te, knn_pred_val, average='binary'))
 
+#print confusion metrics
+print("confusion matrix for 10 day average, class 0 is decrease and class 1 is increase")
+
+print(confusion_matrix(y_te, knn_pred_val))
