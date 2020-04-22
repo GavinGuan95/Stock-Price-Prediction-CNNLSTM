@@ -79,16 +79,39 @@ def extract_features(fname_in=os.path.join("data_loader/original_data/SPY.csv"),
             df = ti.momentum(df, int(s[1]))
         if s[0] == "atr":
             df = ti.average_true_range(df, int(s[1]))
+
         if s[0] == "bb":
-            df = ti.bollinger_bands(df, int(s[1]))
+
+            if s[1] == "ub":
+                df= ti.bollinger_bands_ub(df,int(s[2]))
+
+            if s[1] == "mb":
+                df = ti.bollinger_bands_mb(df, int(s[2]))
+
+            if s[1] == "lb":
+                df = ti.bollinger_bands_lb(df, int(s[2]))
+
         if s[0] == "rsi":
             df = ti.relative_strength_index(df, int(s[1]))
+
         if s[0] == "macd":
-            df = ti.MACD(df)
+
+            if s[1] == "macd":
+                df = ti.MACD_macd(df)
+            if s[1] == "signal":
+                df = ti.MACD_signal(df)
+            if s[1] == "hist":
+                df = ti.MACD_hist(df)
+
         if s[0] == "wr":
             df = ti.william_r(df, int(s[1]))
         if s[0] == "stocha":
-            df = ti.stocha_osc(df)
+
+            if s[1] == "k":
+                df = ti.stocha_osc_d(df)
+            if s[1] == "d":
+                df = ti.stocha_osc_k(df)
+
         if s[0] == "acc":
             df = ti.acc_dist(df)
 

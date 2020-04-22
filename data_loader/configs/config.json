@@ -16,8 +16,12 @@
             "input_columns": [
                 "SMA_2_3",
                 "EMA_2_3",
-                "BB_5",
-                "stocha"
+                "BB_UB_5",
+                "BB_MB_5",
+                "BB_LB_5",
+                "STOCHA_K",
+                 "STOCHA_D"
+
             ],
             "target_columns": [
                 "FSMA_10"
