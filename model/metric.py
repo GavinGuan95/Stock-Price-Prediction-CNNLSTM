@@ -97,6 +97,32 @@ def MAPE(output,target):
     return mape
 
 
+
+def confusion_matrix(output,target):
+    with torch.no_grad():
+
+        output_np = output.cpu().numpy()
+        target_np = target.cpu().numpy()
+
+        # apply the inverse transform in here
+        # load the transformation params from the saved file
+               # with np.load('target_norm_para.npz') as para:
+        #     mean, std = [para[i] for i in ('mean', 'std')]
+        #
+        # output_np = (output_np * std) + mean
+        # target_np = (target_np * std) + mean
+        output_np = unnormalize(output_np)
+        target_np = unnormalize(target_np)
+
+        # calculate the precision, recall and F1-score here
+        TP = np.sum(np.sign(output_np) + np.sign(target_np) == 2)
+        TN = np.sum((np.sign(output_np) + np.sign(target_np)) == -2)
+        FP = np.sum((np.sign(target_np) - np.sign(output_np)) == -2)
+        FN = np.sum((np.sign(target_np) - np.sign(output_np)) == 2)
+
+    return np.array([[TN,TP],[FN,FP]])
+
+
 def theil_U(output,target):
     with torch.no_grad():
         output_np = output.cpu().numpy()

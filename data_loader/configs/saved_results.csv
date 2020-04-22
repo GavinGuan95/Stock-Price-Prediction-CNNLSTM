@@ -1,0 +1,5 @@
+,file names,batch size,context window,input columns,target_columns,regression_binary_pred,F_1_score,mse,sharpe,mape,confusion matrix
+0,config1.json,64,20,"['EMA_2_3', 'EMA_2_5', 'EMA_3_5']",['ROC_1'],0.5550744398584906,0.7123075689192925,0.9302272866480052,0.48730493442362316,621246.034035454,"[[ 0 26]
+ [ 0 27]]"
+1,config2.json,64,20,"['ROC_1', 'ROC_2', 'ROC_3']",['ROC_1'],0.5506004050925926,0.7080210370317783,0.9190609105862677,0.4865236243584749,236625.02506154057,"[[ 0 26]
+ [ 0 28]]"

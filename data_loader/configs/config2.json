@@ -35,7 +35,9 @@
     "loss": "mse_loss",
     "metrics": [
         "regression_binary_pred",
-        "f1_score"
+        "f1_score",
+        "confusion_matrix",
+        "MAPE"
     ],
     "lr_scheduler": {
         "type": "StepLR",
@@ -45,7 +47,7 @@
         }
     },
     "trainer": {
-        "epochs": 15,
+        "epochs": 1,
         "save_dir": "saved/",
         "save_period": 1,
         "verbosity": 2,
@@ -54,10 +56,21 @@
         "tensorboard": true
     },
     "results": {
-        "accuracy": 0.556640625,
-        "f-1 score": 0.7103124887800645,
+        "accuracy": 0.5506004050925926,
+        "f-1 score": 0.7080210370317783,
         "mse_loss": 0.8442153592283527,
-        "mse": 0.9034901782870293,
-        "sharpe": 0.5688568547840407
+        "mse": 0.9190609105862677,
+        "mape": 236625.02506154057,
+        "confusion mtx": [
+            [
+                0,
+                26
+            ],
+            [
+                0,
+                28
+            ]
+        ],
+        "sharpe": 0.4865236243584749
     }
 }

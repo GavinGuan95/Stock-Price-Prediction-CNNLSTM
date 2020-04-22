@@ -77,16 +77,20 @@ class Trainer(BaseTrainer):
         log = self.train_metrics.result()
 
         if self.do_validation:
-            val_log = self._valid_epoch(epoch)
+            val_log, conf_matrix = self._valid_epoch(epoch)
+            val_log["confusion matrix"] = conf_matrix
             self.trader.plot_ret()
             buy_and_hold_sharpe, regression_sharpe = self.trader.get_sharpe()
             log.update(**{'val_'+k : v for k, v in val_log.items()})
             if os.path.exists("results.npz"):
                 with np.load("results.npz") as result:
-                    mse, sharpe, reg_binary_pred, F_1_score = [result[i] for i in ('mse_loss', 'regression_sharpe', 'regression_binary_pred', 'F_1_score')]
-                np.savez("results.npz", mse_loss=min(mse, val_log["loss"]), regression_sharpe=max(sharpe, regression_sharpe), regression_binary_pred=max(reg_binary_pred, val_log["regression_binary_pred"]), F_1_score=max(F_1_score, val_log["f1_score"]))
+                    mse, sharpe, reg_binary_pred, F_1_score, MAPE = [result[i] for i in ('mse_loss', 'regression_sharpe', 'regression_binary_pred', 'F_1_score','MAPE')]
+
+                np.savez("results.npz", mse_loss=min(mse, val_log["loss"]), regression_sharpe=max(sharpe, regression_sharpe),
+                         regression_binary_pred=max(reg_binary_pred, val_log["regression_binary_pred"]),MAPE = min(MAPE,val_log["MAPE"]),
+                         F_1_score=max(F_1_score, val_log["f1_score"]),conf_mtx = conf_matrix)
             else:
-                np.savez("results.npz", mse_loss=val_log["loss"], regression_sharpe=regression_sharpe, regression_binary_pred=val_log["regression_binary_pred"], F_1_score=val_log["f1_score"])
+                np.savez("results.npz", mse_loss=val_log["loss"], regression_sharpe=regression_sharpe, regression_binary_pred=val_log["regression_binary_pred"], F_1_score=val_log["f1_score"],MAPE = val_log["MAPE"],conf_mtx = conf_matrix)
         if self.lr_scheduler is not None:
             self.lr_scheduler.step()
         return log
@@ -123,7 +127,7 @@ class Trainer(BaseTrainer):
         # add histogram of model parameters to the tensorboard
         # for name, p in self.model.named_parameters():
         #     self.writer.add_histogram(name, p, bins='auto')
-        return self.valid_metrics.result()
+        return self.valid_metrics.result(),self.valid_metrics.get_conf_mtx()
 
     def _progress(self, batch_idx):
         base = '[{}/{} ({:.0f}%)]'

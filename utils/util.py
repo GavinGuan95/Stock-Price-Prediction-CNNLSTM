@@ -3,6 +3,7 @@ import pandas as pd
 from pathlib import Path
 from itertools import repeat
 from collections import OrderedDict
+import numpy as np
 
 
 def ensure_dir(dirname):
@@ -29,6 +30,7 @@ class MetricTracker:
     def __init__(self, *keys, writer=None):
         self.writer = writer
         self._data = pd.DataFrame(index=keys, columns=['total', 'counts', 'average'])
+        self.conf_mtx = None
         self.reset()
         
     def reset(self):
@@ -38,12 +40,18 @@ class MetricTracker:
     def update(self, key, value, n=1):
         if self.writer is not None:
             self.writer.add_scalar(key, value)
-        self._data.total[key] += value * n
-        self._data.counts[key] += n
-        self._data.average[key] = self._data.total[key] / self._data.counts[key]
+        if type(value) is not np.ndarray:
+            self._data.total[key] += value * n
+            self._data.counts[key] += n
+            self._data.average[key] = self._data.total[key] / self._data.counts[key]
+        else:
+            self.conf_mtx = value
 
     def avg(self, key):
         return self._data.average[key]
-    
+
+    def get_conf_mtx(self):
+        return self.conf_mtx
+
     def result(self):
         return dict(self._data.average)
