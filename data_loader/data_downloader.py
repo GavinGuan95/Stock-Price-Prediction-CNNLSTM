@@ -24,7 +24,8 @@ forex_list = []
 ticker_list = index_list + forex_list + company_list
 
 start_date = '2000-01-01'
-end_date = '2020-04-01'
+# end_date = '2020-04-01'
+end_date = '2019-12-31'
 
 for ticker in ticker_list:
     df = yf.download(ticker,

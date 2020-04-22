@@ -4,6 +4,7 @@ from torchvision.utils import make_grid
 from base import BaseTrainer
 from utils import inf_loop, MetricTracker
 from trader import Trader
+import os
 
 class Trainer(BaseTrainer):
     """
@@ -40,6 +41,10 @@ class Trainer(BaseTrainer):
         :param epoch: Integer, current training epoch.
         :return: A log that contains average loss and metric in this epoch.
         """
+        # lowest_mse_loss = float("inf")
+        # high_reg_sharpe = -float("inf")
+        # high_bi_pred = -float("inf")
+        # high_f1 = -float("inf")
         self.model.train()
         self.train_metrics.reset()
         for batch_idx, (data, target) in enumerate(self.data_loader):
@@ -71,25 +76,17 @@ class Trainer(BaseTrainer):
                 break
         log = self.train_metrics.result()
 
-        lowest_mse_loss = float("inf")
-        high_reg_sharpe = -float("inf")
-        high_bi_pred = -float("inf")
-        high_f1 = -float("inf")
         if self.do_validation:
             val_log = self._valid_epoch(epoch)
             self.trader.plot_ret()
             buy_and_hold_sharpe, regression_sharpe = self.trader.get_sharpe()
-            if regression_sharpe > high_reg_sharpe:
-                high_reg_sharpe = regression_sharpe
             log.update(**{'val_'+k : v for k, v in val_log.items()})
-            if val_log["loss"] < lowest_mse_loss:
-                lowest_mse_loss = val_log["loss"]
-            if val_log["regression_binary_pred"] > high_bi_pred:
-                high_bi_pred = val_log["regression_binary_pred"]
-            if val_log["f1_score"] > high_f1:
-                high_f1 = val_log["f1_score"]
-
-            np.savez("results.npz", mse_loss=lowest_mse_loss, regression_sharpe=high_reg_sharpe, regression_binary_pred=high_bi_pred, F_1_score=high_f1)
+            if os.path.exists("results.npz"):
+                with np.load("results.npz") as result:
+                    mse, sharpe, reg_binary_pred, F_1_score = [result[i] for i in ('mse_loss', 'regression_sharpe', 'regression_binary_pred', 'F_1_score')]
+                np.savez("results.npz", mse_loss=min(mse, val_log["loss"]), regression_sharpe=max(sharpe, regression_sharpe), regression_binary_pred=max(reg_binary_pred, val_log["regression_binary_pred"]), F_1_score=max(F_1_score, val_log["f1_score"]))
+            else:
+                np.savez("results.npz", mse_loss=val_log["loss"], regression_sharpe=regression_sharpe, regression_binary_pred=val_log["regression_binary_pred"], F_1_score=val_log["f1_score"])
         if self.lr_scheduler is not None:
             self.lr_scheduler.step()
         return log

@@ -114,7 +114,8 @@ def rate_of_change(df, n):
     # this function can also calculate n-day return
 
     ROC = pd.Series(df['Close'].pct_change(n)*100, name='ROC_' + str(n))
-    df = df.join(ROC)
+    if not 'ROC_' + str(n) in df:
+        df = df.join(ROC)
     return df
 
 
