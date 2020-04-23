@@ -8,15 +8,26 @@
     "data_loader": {
         "type": "StockDataLoader",
         "args": {
-            "data_dir": "./data_loader/processed_data/spy_processed.csv",
+            "data_dir": "data_loader/processed_data/spy_processed.csv",
             "batch_size": 64,
             "shuffle": false,
-            "validation_split": 0.2,
+            "validation_split": 0.05,
             "num_workers": 1,
             "input_columns": [
                 "EMA_2_3",
                 "EMA_2_5",
-                "EMA_3_5"
+                "EMA_3_5",
+                "BB_UB_3",
+                "BB_MB_3",
+                "BB_LB_3",
+                "RSI_3",
+                "MACD_MACD",
+                "MACD_SIGNAL",
+                "MACD_HIST",
+                "WR_3",
+                "STOCHA_K",
+                "STOCHA_D",
+                "ACC"
             ],
             "target_columns": [
                 "ROC_1"
@@ -48,7 +59,7 @@
         }
     },
     "trainer": {
-        "epochs": 5,
+        "epochs": 10,
         "save_dir": "saved/",
         "save_period": 1,
         "verbosity": 2,
@@ -57,24 +68,24 @@
         "tensorboard": true
     },
     "results": {
-        "accuracy": 0.5550744398584906,
-        "f-1 score": 0.7144670050761422,
+        "accuracy": 0.5552536231884058,
+        "f-1 score": 0.7205882352941176,
         "mse_loss": 0.8442153592283527,
-        "mse": 0.9302272866480052,
-        "mape": 1.7047556569286773,
+        "mse": 3.89809583624204,
+        "mape": 1.0053146186916309,
         "confusion mtx": [
             [
-                18,
-                543
+                38,
+                41
             ],
             [
-                20,
-                432
+                57,
+                38
             ]
         ],
-        "sharpe": 0.4917692663706204,
-        "precision": 0.5557749259624877,
+        "sharpe": 1.2946547535084252,
+        "precision": 0.5632183908045977,
         "recall": 1.0,
-        "roc_auc": 0.5014924671539709
+        "roc_auc": 0.5
     }
 }

@@ -20,8 +20,10 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import mean_absolute_error
-import h5py
 from sklearn.metrics import f1_score
+from sklearn.metrics import roc_auc_score
+from sklearn.metrics import recall_score
+from sklearn.metrics import precision_score
 
 #load data
 Df= pd.read_csv('./data_loader/processed_data/spy_processed.csv')
@@ -97,11 +99,6 @@ print("next day accuracy",accuracy_score(class_te, p_target))
 #print f1 score
 print("the f1 score for LR next day", f1_score(class_te, p_target, average='binary'))
 
-#print confusion metrics
-print("confusion matrix for 10 day average, class 0 is decrease and class 1 is increase")
-
-print(confusion_matrix(class_te, p_target))
-
 
 # code below is for LN on 10 day average trend
 #load data
@@ -176,9 +173,4 @@ p_target[p_target > 0] = 1
 print("10 day average accuracy", accuracy_score(class_te, p_target))
 
 #print f1 score
-print("the f1 score for svc 10 days average is", f1_score(class_te, p_target, average='binary'))
-
-#print confusion metrics
-print("confusion matrix for 10 day average, class 0 is decrease and class 1 is increase")
-
-print(confusion_matrix(class_te, p_target))
+print("the f1 score for 10 days average is", f1_score(class_te, p_target, average='binary'))

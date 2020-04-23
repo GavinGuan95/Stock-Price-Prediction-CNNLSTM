@@ -63,10 +63,8 @@ class StockDataset(Dataset):
         self.window = window
         self.data = []
         for i in range(0, total_len-self.window):
-            # append a tuple: (input, target)
             self.data.append((input_torch_matrix[:, i:i + self.window],
                               target_torch_matrix[:, i + self.window]))
-        dummy = 1
 
     def __len__(self):
         return len(self.data)
@@ -93,21 +91,21 @@ class StockDataLoader(BaseDataLoader):
         # target_columns = ["ROC_1"]
 
         # call the data preprocessor in here - saved to spy_processed.csv
-        extract_features(features_col=input_columns + target_columns,economic=False)
+        self.df, all_econ_columns = extract_features(features_col=input_columns + target_columns, economic=True)
+        self.df = self.df.dropna()
         # saved the input and output columns to
 
         # change some of the columns if a technical indicator function returns more than one value
-
-        input_torch_matrix = self.normalization(data_dir, input_columns, self.input_transformer, "input", normalization=True)
-        target_torch_matrix = self.normalization(data_dir, target_columns, self.output_transformer, "target", normalization=True)
+        input_columns = input_columns + all_econ_columns
+        input_torch_matrix = self.normalization(self.df, input_columns, self.input_transformer, "input", normalization=True)
+        target_torch_matrix = self.normalization(self.df, target_columns, self.output_transformer, "target", normalization=True)
         self.dataset = StockDataset(input_torch_matrix, target_torch_matrix,window)
 
         super().__init__(self.dataset, batch_size, shuffle, validation_split, num_workers)
 
 
 
-    def normalization(self, csv_file, columns, transformer, tag, normalization=True):
-        df = pd.read_csv(csv_file).dropna()
+    def normalization(self, df, columns, transformer, tag, normalization=True):
         np_array_list = []
         for column in columns:
             np_array_list.append(df[column].to_numpy())
@@ -124,14 +122,3 @@ class StockDataLoader(BaseDataLoader):
 
         torch_matrix = torch.tensor(np_matrix_normalized, dtype=torch.float).t()
         return torch_matrix
-
-
-if __name__ == "__main__":
-    # quick tester
-    csv_file = "/home/guanyush/Pictures/CSC2516/CNNLSTM/data/STOCK/SPY.csv"
-    # df = pd.read_csv(csv_file)
-    # tt = torch.tensor(df['Adj Close'])
-    # dummy = 1
-
-    sd = StockDataset(csv_file)
-    print(sd[-1])

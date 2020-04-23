@@ -11,7 +11,7 @@ class Trainer(BaseTrainer):
     """
     Trainer class
     """
-    def __init__(self, model, criterion, metric_ftns, optimizer, config, data_loader,
+    def __init__(self, model, criterion, metric_ftns, optimizer, config, data_loader, df,
                  valid_data_loader=None, lr_scheduler=None, len_epoch=None):
         super().__init__(model, criterion, metric_ftns, optimizer, config)
         self.config = config
@@ -31,7 +31,7 @@ class Trainer(BaseTrainer):
         # TODO [Gavin]: tensorboard visualization commented out
         self.train_metrics = MetricTracker('loss', *[m.__name__ for m in self.metric_ftns])
         self.valid_metrics = MetricTracker('loss', *[m.__name__ for m in self.metric_ftns])
-        self.trader = Trader(self.config, self.valid_data_loader)
+        self.trader = Trader(self.config, self.valid_data_loader, df)
         # self.train_metrics = MetricTracker('loss', *[m.__name__ for m in self.metric_ftns], writer=self.writer)
         # self.valid_metrics = MetricTracker('loss', *[m.__name__ for m in self.metric_ftns], writer=self.writer)
 
@@ -49,7 +49,6 @@ class Trainer(BaseTrainer):
         self.model.train()
         self.train_metrics.reset()
         for batch_idx, (data, target) in enumerate(self.data_loader):
-            # print("training batch_idx: {}, target: {}, data: {}".format(batch_idx, target, data))
             data, target = data.to(self.device), target.to(self.device)
 
             self.optimizer.zero_grad()
@@ -78,8 +77,7 @@ class Trainer(BaseTrainer):
         log = self.train_metrics.result()
 
         if self.do_validation:
-            val_log, conf_matrix, comp_mtx,sign_mtx = self._valid_epoch(epoch)
-
+            val_log, conf_matrix, comp_mtx, sign_mtx = self._valid_epoch(epoch)
             # Have to calcluate F-1 score in here
             TP = conf_matrix[0][1]
             TN = conf_matrix[0][0]
@@ -112,17 +110,17 @@ class Trainer(BaseTrainer):
             val_log["roc_auc"] = r_c_score
 
 
-            self.trader.plot_ret()
+
             buy_and_hold_sharpe, regression_sharpe = self.trader.get_sharpe()
             log.update(**{'val_'+k : v for k, v in val_log.items()})
 
             if os.path.exists("results.npz"):
                 with np.load("results.npz") as result:
-                    mse, sharpe, reg_binary_pred, F_1_score, precision, recall, MAPE,r_c_score = [result[i] for i in ('mse_loss', 'regression_sharpe', 'regression_binary_pred', 'F_1_score','precision','recall','MAPE','roc_auc')]
-
+                    mse, reg_binary_pred, F_1_score, precision, recall, MAPE,r_c_score = [result[i] for i in ('mse_loss', 'regression_binary_pred', 'F_1_score','precision','recall','MAPE','roc_auc')]
+                # F_1_score has only 1 element, but somehow the numpy array size is zero, retrieve that value
+                self.trader.plot_ret(F_1_score.max()>f_1_score)
                 np.savez("results.npz",
                          mse_loss=min(mse, val_log["loss"]),
-                         regression_sharpe=max(sharpe, regression_sharpe),
                          regression_binary_pred=max(reg_binary_pred, val_log["regression_binary_pred"]),
                          MAPE = min(MAPE,val_log["MAPE"]),
                          F_1_score=max(F_1_score, f_1_score),
@@ -133,7 +131,6 @@ class Trainer(BaseTrainer):
             else:
                 np.savez("results.npz",
                          mse_loss=val_log["loss"],
-                         regression_sharpe=regression_sharpe,
                          regression_binary_pred=val_log["regression_binary_pred"],
                          F_1_score=f_1_score,
                          precision = precision,
@@ -157,10 +154,8 @@ class Trainer(BaseTrainer):
         self.valid_metrics.reset()
 
         all_validation_output = []
-        print("starting _valid_epoch")
         with torch.no_grad():
             for batch_idx, (data, target) in enumerate(self.valid_data_loader):
-                # print("validation batch_idx: {} ,target: {}, data: {}".format(batch_idx, target, data))
                 data, target = data.to(self.device), target.to(self.device)
 
                 output = self.model(data)

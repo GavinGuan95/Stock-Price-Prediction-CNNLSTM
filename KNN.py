@@ -19,9 +19,11 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 from sklearn.ensemble import RandomForestClassifier
-import h5py
 from sklearn.metrics import f1_score
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import roc_auc_score
+from sklearn.metrics import recall_score
+from sklearn.metrics import precision_score
 
 #load data
 Df= pd.read_csv('./data_loader/processed_data/spy_processed.csv')
@@ -92,10 +94,6 @@ print("KNN testing accuracy for next day",accuracy_score(y_te, knn_pred_val))
 #print f1 score
 print("the f1 score for KNN next day prediction is", f1_score(y_te, knn_pred_val, average='binary'))
 
-#print confusion metrics
-print("confusion matrix for next day, class 0 is decrease and class 1 is increase")
-
-print(confusion_matrix(y_te, knn_pred_val))
 
 # the model below predicts the movement for 10 day average trends
 
@@ -167,8 +165,3 @@ print("KNN testing accuracy for 10 day average", accuracy_score(y_te, knn_pred_v
 
 #print f1 score
 print("the f1 score for KNN 10 days average is", f1_score(y_te, knn_pred_val, average='binary'))
-
-#print confusion metrics
-print("confusion matrix for 10 day average, class 0 is decrease and class 1 is increase")
-
-print(confusion_matrix(y_te, knn_pred_val))

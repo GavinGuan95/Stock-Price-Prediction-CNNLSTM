@@ -13,13 +13,6 @@ import json
 import pandas as pd
 import os
 
-# fix random seeds for reproducibility
-SEED = 123
-torch.manual_seed(SEED)
-torch.backends.cudnn.deterministic = True
-torch.backends.cudnn.benchmark = False
-np.random.seed(SEED)
-
 def main(config,config_f):
     logger = config.get_logger('train')
 
@@ -46,13 +39,14 @@ def main(config,config_f):
                       config=config,
                       data_loader=data_loader,
                       valid_data_loader=valid_data_loader,
-                      lr_scheduler=lr_scheduler)
+                      lr_scheduler=lr_scheduler,
+                      df=data_loader.df)
 
     trainer.train()
 #     save result to JSON
 
     with np.load('results.npz') as result:
-        mse, sharpe, reg_binary_pred, F_1_score,precision,recall, MAPE, conf_mtx, roc_auc_score = [result[i] for i in ('mse_loss', 'regression_sharpe', 'regression_binary_pred', 'F_1_score','precision','recall', 'MAPE','conf_mtx','roc_auc')]
+        mse, reg_binary_pred, F_1_score,precision,recall, MAPE, conf_mtx, roc_auc_score = [result[i] for i in ('mse_loss', 'regression_binary_pred', 'F_1_score','precision','recall', 'MAPE','conf_mtx','roc_auc')]
 
     if os.path.exists("results.npz"):
         os.remove("results.npz")
@@ -61,7 +55,6 @@ def main(config,config_f):
         data = json.load(f_object)
 
     data["results"]["mse"] = np.sum(mse)
-    data["results"]["sharpe"] = np.sum(sharpe)
     data["results"]["accuracy"] = np.sum(reg_binary_pred)
     data["results"]["f-1 score"] = np.sum(F_1_score)
     data["results"]["mape"] = np.sum(MAPE)
@@ -85,7 +78,6 @@ def save_to_excel():
     precision=[]
     recall = []
     mse = []
-    sharpe = []
     mape = []
     conf_mtx = []
     roc_auc_score = []
@@ -105,13 +97,12 @@ def save_to_excel():
             precision.append(data["results"]["precision"])
             recall.append(data["results"]["recall"])
             mse.append(data["results"]["mse"])
-            sharpe.append(data["results"]["sharpe"])
             mape.append(data["results"]["mape"])
             conf_mtx.append(np.array_str(np.array(data["results"]["confusion mtx"])))
             roc_auc_score.append(data["results"]["roc_auc"])
 
-    df = pd.DataFrame(np.array([name_list,batch_size,context_win,input_columns,target_columns,regression_binary_pred,F_1_score,precision,recall,mse,sharpe,mape,conf_mtx,roc_auc_score]).T,
-                      columns=["file names","batch size","context window","input columns","target_columns","regression_binary_pred","F_1_score","precision","recall","mse","sharpe","mape","confusion matrix","roc_auc score"])
+    df = pd.DataFrame(np.array([name_list,batch_size,context_win,input_columns,target_columns,regression_binary_pred,F_1_score,mse]).T,
+                      columns=["file names","batch size","context window","input columns","target_columns","regression_binary_pred","F_1_score","mse"])
 
     print(df)
 

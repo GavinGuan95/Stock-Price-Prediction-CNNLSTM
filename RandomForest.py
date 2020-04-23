@@ -20,7 +20,10 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import f1_score
-import h5py
+from sklearn.metrics import roc_auc_score
+from sklearn.metrics import recall_score
+from sklearn.metrics import precision_score
+
 
 #load data
 Df= pd.read_csv('./data_loader/processed_data/spy_processed.csv')
@@ -35,7 +38,7 @@ sc_X = StandardScaler()
 X= sc_X.fit_transform(X)
 X_new = pd.DataFrame(data=X)
 # set the context window size
-window_size = 20
+window_size = 10
 
 input_list = []
 output_list = []
@@ -55,12 +58,6 @@ target=pd.DataFrame(output_list)
 target[target <= 0] = 0
 target[target > 0] = 1
 
-# y=target.values.tolist()
-# target=y.ravel()
-# print(X_new)
-#
-# print(target)
-# print(Df)
 
 #split train test to 7:3
 t=.7
@@ -88,6 +85,7 @@ min_samples_split = [2,5,10]
 min_samples_leaf = [1,2,5]
 # Method of selecting samples for training each tree
 bootstrap = [True, False]
+
 # Create the random search paramaters
 parameters = {'n_estimators': n_estimators,
                'max_features': max_features,
@@ -113,10 +111,6 @@ print("RF next day testing accuracy", accuracy_score(y_te, rf_pred_val))
 #print f1 score
 print("the f1 score for next days prediction", f1_score(y_te, rf_pred_val, average='binary'))
 
-#print confusion metrics
-print("confusion matrix for next day prediction, class 0 is decrease and class 1 is increase")
-
-print(confusion_matrix(y_te, rf_pred_val))
 
 # code below is for Rf on the 10 day average trend movement
 
@@ -129,7 +123,7 @@ sc_X = StandardScaler()
 X= sc_X.fit_transform(X)
 X_new = pd.DataFrame(data=X)
 # set the context window size
-window_size = 20
+window_size = 10
 
 input_list = []
 output_list = []
@@ -199,8 +193,3 @@ print("RF 10 day average testing accuracy", accuracy_score(y_te, rf_pred_val))
 
 #print f1 score
 print("the f1 score for RF 10 days average is", f1_score(y_te, rf_pred_val, average='binary'))
-
-#print confusion metrics
-print("confusion matrix for 10 day average, class 0 is decrease and class 1 is increase")
-
-print(confusion_matrix(y_te, rf_pred_val))

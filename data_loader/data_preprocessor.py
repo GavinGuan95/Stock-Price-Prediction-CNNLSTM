@@ -29,7 +29,7 @@ import technical_indicators as ti
 
 
 # TODO: derive adjusted Open, High, Low from the downloaded data. Save back to file.
-def extract_features(fname_in=os.path.join("data_loader/original_data/SPY.csv"), features_col= None, start=None, end=None, index="Date", economic=False):
+def extract_features(fname_in=os.path.join("data_loader/original_data/indices/SPY.csv"), features_col= None, start=None, end=None, index="Date", economic=False):
 
     # create an processed data folder
     if not os.path.exists('processed_data'):
@@ -116,25 +116,28 @@ def extract_features(fname_in=os.path.join("data_loader/original_data/SPY.csv"),
             df = ti.acc_dist(df)
 
     # # call the economic functions in here
+    all_econ_columns = []
     if economic == True:
-        df = append_indices(df)
+        df, all_econ_columns = append_indices(df)
 
-    df.to_csv("data_loader/processed_data/spy_processed.csv")
+    # df.to_csv("data_loader/processed_data/tsla_processed.csv")
     print(df.head)
     # save the modified excel file
     # processed_file_name = os.path.basename(fname_in).split(".")
     # new_file_name = processed_file_name[0] + "_processed" + "." + processed_file_name[1]
     # df.to_csv(os.path.join("processed_data", new_file_name))
-    return df
+    return df.dropna(), all_econ_columns
 
 def append_indices(df):
     # this function will append all the indices from the indices folder
-    for fname in glob.glob('data_loader/original_data/indices/*.csv'):
-        print(fname)
+    all_columns = []
+    for fname in glob.glob('data_loader/original_data/econfactor/*.csv'):
+        # print(fname)
         df_i = pd.read_csv(fname)
         df = match(df, df_i, os.path.basename(fname))
-        print(df_i.shape,df.shape)
-    return df
+        all_columns.append(os.path.basename(fname))
+        # print(df_i.shape,df.shape)
+    return df, all_columns
 
 
 # helper function for aligning feature data against the data of interest in this case SPY
@@ -162,6 +165,5 @@ if __name__ == "__main__":
     # fname = "/home/guanyush/Pictures/CSC2516/CNNLSTM/data_loader/processed_data/kibot.csv"
     # extract_features(fname, index="Unnamed: 0", economic=False)
 
-    fname = os.path.join("original_data/indices/SPY.csv")
-    # fname = os.path.join("original_data/SPY_sequential_fake.csv")
-    extract_features()
+    fname = os.path.join("original_data/indices/TSLA.csv")
+    extract_features(fname, features_col=["ROC_1"])

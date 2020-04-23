@@ -1,0 +1,3 @@
+,file names,batch size,context window,input columns,target_columns,regression_binary_pred,F_1_score,mse
+0,config4.json,64,20,"['ROC_1', 'ROC_2', 'ROC_5']",['FSMA_10'],0.6305712090163934,0.7748184019370461,2.2986275106668472
+1,config3.json,64,20,"['EMA_2_3', 'EMA_2_5', 'EMA_3_5']",['FSMA_10'],0.6305712090163934,0.7748184019370461,2.3008675947785378

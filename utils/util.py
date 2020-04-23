@@ -54,7 +54,7 @@ class MetricTracker:
             if self.comp_mtx is None:
                 self.comp_mtx = value
             else:
-                self.comp_mtx = np.concatenate((self.comp_mtx,value),axis=0)
+                self.comp_mtx = np.concatenate((self.comp_mtx, value),axis=0)
         elif key == 'roc_auc':
             if self.sign_mtx is None:
                 self.sign_mtx = value
