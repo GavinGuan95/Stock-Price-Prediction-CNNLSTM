@@ -91,7 +91,7 @@ class StockDataLoader(BaseDataLoader):
         # target_columns = ["ROC_1"]
 
         # call the data preprocessor in here - saved to spy_processed.csv
-        self.df, all_econ_columns = extract_features(features_col=input_columns + target_columns, economic=True)
+        self.df, all_econ_columns = extract_features(features_col=input_columns + target_columns, economic=False)
         self.df = self.df.dropna()
         # saved the input and output columns to
 
@@ -99,7 +99,7 @@ class StockDataLoader(BaseDataLoader):
         input_columns = input_columns + all_econ_columns
         input_torch_matrix = self.normalization(self.df, input_columns, self.input_transformer, "input", normalization=True)
         target_torch_matrix = self.normalization(self.df, target_columns, self.output_transformer, "target", normalization=True)
-        self.dataset = StockDataset(input_torch_matrix, target_torch_matrix,window)
+        self.dataset = StockDataset(input_torch_matrix, target_torch_matrix, window)
 
         super().__init__(self.dataset, batch_size, shuffle, validation_split, num_workers)
 

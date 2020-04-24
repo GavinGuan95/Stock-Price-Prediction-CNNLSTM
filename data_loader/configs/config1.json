@@ -11,28 +11,17 @@
             "data_dir": "data_loader/processed_data/spy_processed.csv",
             "batch_size": 64,
             "shuffle": false,
-            "validation_split": 0.05,
+            "validation_split": 0.1,
             "num_workers": 1,
             "input_columns": [
                 "EMA_2_3",
                 "EMA_2_5",
-                "EMA_3_5",
-                "BB_UB_3",
-                "BB_MB_3",
-                "BB_LB_3",
-                "RSI_3",
-                "MACD_MACD",
-                "MACD_SIGNAL",
-                "MACD_HIST",
-                "WR_3",
-                "STOCHA_K",
-                "STOCHA_D",
-                "ACC"
+                "EMA_3_5"
             ],
             "target_columns": [
                 "ROC_1"
             ],
-            "window": 20
+            "window": 10
         }
     },
     "optimizer": {
@@ -59,7 +48,7 @@
         }
     },
     "trainer": {
-        "epochs": 10,
+        "epochs": 15,
         "save_dir": "saved/",
         "save_period": 1,
         "verbosity": 2,
@@ -68,24 +57,24 @@
         "tensorboard": true
     },
     "results": {
-        "accuracy": 0.5552536231884058,
-        "f-1 score": 0.7205882352941176,
+        "accuracy": 0.5669221698113207,
+        "f-1 score": 0.7190721649484535,
         "mse_loss": 0.8442153592283527,
-        "mse": 3.89809583624204,
-        "mape": 1.0053146186916309,
+        "mse": 0.6166368834674358,
+        "mape": 1.230893925040544,
         "confusion mtx": [
             [
-                38,
-                41
+                26,
+                249
             ],
             [
-                57,
-                38
+                32,
+                194
             ]
         ],
         "sharpe": 1.2946547535084252,
-        "precision": 0.5632183908045977,
-        "recall": 1.0,
-        "roc_auc": 0.5
+        "precision": 0.5636363636363636,
+        "recall": 0.9928825622775801,
+        "roc_auc": 0.5085137085137085
     }
 }

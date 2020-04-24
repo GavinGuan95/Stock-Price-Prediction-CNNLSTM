@@ -1,3 +1,0 @@
-,file names,batch size,context window,input columns,target_columns,regression_binary_pred,F_1_score,mse,sharpe
-0,config2.json,64,20,"['SMA_2_4', 'EMA_2_3']",['ROC_1'],0.5516750529661016,0.707976725492371,1.4577618949115276,0.9379223363973921
-1,config.json,64,10,"['SMA_2_3', 'EMA_2_3']",['ROC_1'],0.552734375,0.7090392355209226,1.4256592467427254,0.9181020333310551
